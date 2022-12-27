@@ -282,6 +282,60 @@ void GetADCResult(unsigned char ch,unsigned int *value)
 	*value = ((*value)*4 + ADC_LOW2);		//Return ADC result.×￠êíμ?′????ò·μ??8??ADC?á1?
 }
 
+void menu()
+{
+	//菜单一循环显示
+	//菜单二只显示时间
+	//菜单三只显示温度
+	//菜单四只显示光强度
+	//菜单五调整时
+	//菜单六调整分
+	if(menu==0)
+	{
+		if(is_not_display_tem==1)choose_display('T');      	//一定条件下显示温度
+		else if(is_not_display_lum==1)choose_display('l'); 	//一定条件下显示发光强度
+		else choose_display('t'); 							//其他条件下显示时间
+	}
+	if(menu==1)choose_display('t');							//只显示时间
+	if(menu==2)choose_display('T');							//只显示温度
+	if(menu==3)choose_display('l');							//只显示光强
+	//调整时
+	if(menu==4)
+	{
+		//闪烁
+		if(point_display==1)
+		{
+			table[2]=fen/16;
+			table[3]=fen%16;
+		}
+		else
+		{
+			table[2]=10;
+			table[3]=10;
+		}
+		table[0]=shi/16;
+		table[1]=shi%16;
+		choose_display('s');
+	}
+	//调整分
+	if(menu==5)
+	{
+		table[2]=fen/16;
+		table[3]=fen%16;
+		//闪烁
+		if(point_display>0)
+		{
+			table[0]=shi/16;
+			table[1]=shi%16;
+		}
+		else
+		{
+			table[0]=10;
+			table[1]=10;
+		}
+		choose_display('s');
+	}
+}
 //收集温度和光强度
 void collect_tem_and_lum()
 {
@@ -392,6 +446,12 @@ void key()
 void init()
 {
 	uchar i;
+
+	P2M0=0xFF;
+	P2M1=0x00;
+	P3M0 = 0xF0;
+	P3M1 = 0x00;
+	
 	//init
 	TMOD= 0x01;
 	TL0 = (65536-50000)/256;        //设置定时初值
@@ -430,12 +490,6 @@ void init()
 
 void main()
 {
-	P2M0=0xFF;
-	P2M1=0x00;
-
-	P3M0 = 0xF0;
-	P3M1 = 0x00;
-
 	init();
 	read_setting();
 	
@@ -443,57 +497,7 @@ void main()
 	{
 		key();
 		collect_tem_and_lum();
-		//菜单一循环显示
-		//菜单二只显示时间
-		//菜单三只显示温度
-		//菜单四只显示光强度
-		//菜单五调整时
-		//菜单六调整分
-		if(menu==0)
-		{
-			if(is_not_display_tem==1)choose_display('T');      	//一定条件下显示温度
-			else if(is_not_display_lum==1)choose_display('l'); 	//一定条件下显示发光强度
-			else choose_display('t'); 							//其他条件下显示时间
-		}
-		if(menu==1)choose_display('t');							//只显示时间
-		if(menu==2)choose_display('T');							//只显示温度
-		if(menu==3)choose_display('l');							//只显示光强
-		//调整时
-		if(menu==4)
-		{
-			//闪烁
-			if(point_display==1)
-			{
-				table[2]=fen/16;
-				table[3]=fen%16;
-			}
-			else
-			{
-				table[2]=10;
-				table[3]=10;
-			}
-			table[0]=shi/16;
-			table[1]=shi%16;
-			choose_display('s');
-		}
-		//调整分
-		if(menu==5)
-		{
-			table[2]=fen/16;
-			table[3]=fen%16;
-			//闪烁
-			if(point_display>0)
-			{
-				table[0]=shi/16;
-				table[1]=shi%16;
-			}
-			else
-			{
-				table[0]=10;
-				table[1]=10;
-			}
-			choose_display('s');
-		}
+		menu();
 	}
 }
 
