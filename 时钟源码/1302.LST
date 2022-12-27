@@ -1,0 +1,221 @@
+C51 COMPILER V9.59.0.0   1302                                                              12/24/2022 13:06:15 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE 1302
+OBJECT MODULE PLACED IN 1302.OBJ
+COMPILER INVOKED BY: C:\Program Files\Keil_v5\C51\BIN\C51.EXE 1302.c OPTIMIZE(9,SPEED) BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          #include "STC15F2K.h"          //调用单片机头文件
+   2          #define uchar unsigned char  //无符号字符型 宏定义  变量范围0~255
+   3          #define uint  unsigned int   //无符号整型 宏定义  变量范围0~65535
+   4          
+   5          /******************
+   6            ds1302 内部RAM   RAM0  1100 000R/W   1读 0写
+   7                     RAM1  1100 001R/W  
+   8                           ....... 
+   9                     RAM30 1111 110R/W   
+  10          ********************/
+  11          
+  12          sbit clk = P3^2;    //ds1302时钟线定义
+  13          sbit io =  P0^1;    //数据线
+  14          sbit rst = P0^0;    //复位线
+  15          
+  16          //sbit clk = P3^2;    //ds1302时钟线定义      15W408AS
+  17          //sbit io =  P5^5;    //数据线
+  18          //sbit rst = P5^4;    //复位线
+  19                      
+  20                      //秒  分   时   日   月  年   星期  
+  21          uchar code write_add[]={0x80,0x82,0x84};   //写地址,0x86,0x88,0x8c,0x8a
+  22          //uchar code read_add[] ={0x81,0x83,0x85};   //读地址,0x87,0x89,0x8d,0x8b
+  23          uchar code init_ds[]  ={0x55,0x17,0x15,0x01,0x01,0x13,0x13};   
+  24          int fen,shi,miao;//,ri,yue,week,nian=0x20;
+  25          
+  26          int nfen=0;
+  27          int nshi=0;
+  28          
+  29          uchar nk=0;
+  30          uchar gk=0;
+  31          bit nx=0;
+  32          bit sw=0; //温度时间切换
+  33          
+  34          
+  35          /*************写一个数据到对应的地址里***************/
+  36          void write_ds1302(uchar add,uchar dat)
+  37          {
+  38   1        uchar i;    
+  39   1        rst = 1;       //把复位线拿高
+  40   1        for(i=0;i<8;i++)
+  41   1        {            //低位在前
+  42   2          clk = 0;     //时钟线拿低开始写数据
+  43   2          io = add & 0x01;      
+  44   2          add >>= 1;     //把地址右移一位
+  45   2          clk = 1;     //时钟线拿高
+  46   2        } 
+  47   1        for(i=0;i<8;i++)
+  48   1        {
+  49   2          clk = 0;     //时钟线拿低开始写数据
+  50   2          io = dat & 0x01;
+  51   2          dat >>= 1;     //把数据右移一位
+  52   2          clk = 1;     //时钟线拿高
+  53   2        }
+  54   1        rst = 0;       //复位线合低
+  55   1        clk = 0;
+C51 COMPILER V9.59.0.0   1302                                                              12/24/2022 13:06:15 PAGE 2   
+
+  56   1        io = 0;
+  57   1      }
+  58          
+  59          /*************从对应的地址读一个数据出来***************/
+  60          uchar read_ds1302(uchar add)
+  61          {
+  62   1        uchar value,i;
+  63   1        rst = 1;       //把复位线拿高
+  64   1        for(i=0;i<8;i++)
+  65   1        {            //低位在前
+  66   2          clk = 0;     //时钟线拿低开始写数据
+  67   2          io = add & 0x01;      
+  68   2          add >>= 1;     //把地址右移一位
+  69   2          clk = 1;     //时钟线拿高
+  70   2        }   
+  71   1        for(i=0;i<8;i++)
+  72   1        {
+  73   2          clk = 0;     //时钟线拿低开始读数据
+  74   2          value >>= 1;
+  75   2          if(io == 1)
+  76   2            value |= 0x80;
+  77   2          clk = 1;     //时钟线拿高
+  78   2        }
+  79   1        rst = 0;       //复位线合低
+  80   1        clk = 0;
+  81   1        io = 0;
+  82   1        return value;    //返回读出来的数据
+  83   1      }
+  84          
+  85          /*************把要的时间 年月日 都读出来***************/
+  86          void read_time()
+  87          {
+  88   1      //  miao = read_ds1302(read_add[0]);  //读秒
+  89   1      
+  90   1        fen  = read_ds1302(0x83); //读分
+  91   1        shi  = read_ds1302(0x85); //读时
+  92   1      
+  93   1      //  ri   = read_ds1302(read_add[3]);  //读日
+  94   1      //  yue  = read_ds1302(read_add[4]);  //读月
+  95   1      //  nian = read_ds1302(read_add[5]);  //读年
+  96   1      //  week = read_ds1302(read_add[6]);  //读星期
+  97   1      }
+  98          
+  99          /*************把要写的时间 年月日 都写入ds1302里***************/
+ 100          void write_time()
+ 101          {
+ 102   1        write_ds1302(0x8e,0x00);      //打开写保护
+ 103   1      //  write_ds1302(write_add[0],miao);  //写秒
+ 104   1        write_ds1302(0x80,miao);    //写秒
+ 105   1        write_ds1302(0x82,fen);   //写分
+ 106   1        write_ds1302(0x84,shi);   //写时
+ 107   1      //  write_ds1302(write_add[3],ri);    //写日
+ 108   1      //  write_ds1302(write_add[4],yue);   //写月
+ 109   1      //  write_ds1302(write_add[5],nian);  //写年
+ 110   1      //  write_ds1302(write_add[6],week);  //写星期
+ 111   1      
+ 112   1        write_ds1302(0xc2,nshi);      //写时
+ 113   1        write_ds1302(0xc4,nfen);      //写分
+ 114   1      
+ 115   1        write_ds1302(0x8e,0x80);      //关闭写保护
+ 116   1      }
+ 117          
+C51 COMPILER V9.59.0.0   1302                                                              12/24/2022 13:06:15 PAGE 3   
+
+ 118          void read_nao()
+ 119          {
+ 120   1        nshi = read_ds1302(0xc3); //读闹钟时
+ 121   1        nfen = read_ds1302(0xc5); //读闹钟分
+ 122   1      }
+ 123          
+ 124          void write_setting()
+ 125          {
+ 126   1        write_ds1302(0x8e,0x00);
+ 127   1        write_ds1302(0xcc,sw);
+ 128   1        write_ds1302(0xca,nx);
+ 129   1        write_ds1302(0xc8,gk);
+ 130   1        write_ds1302(0xc6,nk);
+ 131   1        write_ds1302(0x8e,0x80);
+ 132   1      }
+ 133          
+ 134          
+ 135          void read_setting()
+ 136          {
+ 137   1        
+ 138   1        nk = read_ds1302(0xc7);              //         1100 0111 读取Ram3
+ 139   1        gk = read_ds1302(0xc9);        //         1100 1001 读取Ram4
+ 140   1        nx = read_ds1302(0xcb);
+ 141   1        sw = read_ds1302(0xcd);
+ 142   1      }
+ 143          
+ 144          
+ 145          
+ 146          
+ 147          
+ 148          /*************把数据保存到ds1302 RAM中**0-31*************/
+ 149          void write_ds1302ram(uchar add,uchar dat)
+ 150          {
+ 151   1        add <<= 1;     //地址是从第二位开始的
+ 152   1        add &= 0xfe;   //把最低位清零  是写的命令
+ 153   1        add |= 0xc0;   //地址最高两位为 1  
+ 154   1        write_ds1302(0x8e,0x00);
+ 155   1        write_ds1302(add,dat);  
+ 156   1        write_ds1302(0x8e,0x80);
+ 157   1      }
+ 158          
+ 159          /*************把数据从ds1302 RAM读出来**0-31*************/
+ 160          uchar read_ds1302ram(uchar add)
+ 161          {
+ 162   1        add <<= 1;     //地址是从第二位开始的
+ 163   1        add |= 0x01;   //把最高位置1  是读命令
+ 164   1        add |= 0xc0;   //地址最高两位为 1  
+ 165   1        return(read_ds1302(add)); 
+ 166   1      }
+ 167          
+ 168          /*************初始化ds1302时间***************/
+ 169          void init_ds1302()
+ 170          {
+ 171   1        uchar i;
+ 172   1        rst = 0;  //第一次读写数据时要把IO品拿低
+ 173   1        clk = 0;
+ 174   1        io = 0;
+ 175   1        i = read_ds1302ram(30);   
+ 176   1        if(i != 3)
+ 177   1        { 
+ 178   2          i = 3;
+ 179   2          write_ds1302ram(30,i);
+C51 COMPILER V9.59.0.0   1302                                                              12/24/2022 13:06:15 PAGE 4   
+
+ 180   2          write_ds1302(0x8e,0x00);              //打开写保护
+ 181   2          for(i=0;i<3;i++)
+ 182   2            write_ds1302(write_add[i],init_ds[i]);  //把最高位值0 允许ds1302工作
+ 183   2          write_ds1302(0x8e,0x80);  //关写保护
+ 184   2        }
+ 185   1      }
+ 186          
+ 187          void init_ds1302_io()
+ 188          {
+ 189   1        rst = 0;  //第一次读写数据时要把IO品拿低
+ 190   1        clk = 0;
+ 191   1        io = 0; 
+ 192   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    396    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     12    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      2    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
