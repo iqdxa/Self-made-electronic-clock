@@ -1,4 +1,4 @@
-C51 COMPILER V9.59.0.0   MAIN                                                              12/25/2022 17:26:32 PAGE 1   
+C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 1   
 
 
 C51 COMPILER V9.59.0.0, COMPILATION OF MODULE MAIN
@@ -11,636 +11,566 @@ line level    source
    2          #include "intrins.h"
    3          #include <math.h>
    4          
-   5          #define uchar unsigned char  //ÎŞ·ûºÅ×Ö·ûĞÍ ºê¶¨Òå  ±äÁ¿·¶Î§0~255
-   6          #define uint  unsigned int   //ÎŞ·ûºÅÕûĞÍ ºê¶¨Òå  ±äÁ¿·¶Î§0~65535
-   7          #define ADC_POWER   0x80            //ADCµçÔ´¿ØÖÆÎ»
-   8          #define ADC_FLAG    0x10            //ADCÍê³É±êÖ¾
-   9          #define ADC_START   0x08            //ADCÆğÊ¼¿ØÖÆÎ»
-  10          #define ADC_SPEEDLL 0x00            //540¸öÊ±ÖÓ
-  11          #define ADC_SPEEDL  0x20            //360¸öÊ±ÖÓ
-  12          #define ADC_SPEEDH  0x40            //180¸öÊ±ÖÓ
-  13          #define ADC_SPEEDHH 0x60            //90¸öÊ±ÖÓ
-  14          
-  15          sfr ADC_LOW2    =   0xBE;           //ADCµÍ2Î»½á¹û
-  16          
-  17          bit nx;
-  18          bit sw;
-  19          bit nx=0;
-  20          bit sw=0; //ÎÂ¶ÈÊ±¼äÇĞ»»
-  21          
-  22          sbit clk = P3^2;    //ds1302Ê±ÖÓÏß¶¨Òå      15W408AS
-  23          sbit io =  P5^5;    //Êı¾İÏß
-  24          sbit rst = P5^4;    //¸´Î»Ïß
-  25          sbit DS4=P3^4;
-  26          sbit DS3=P3^5;
-  27          sbit DS2=P3^6;
-  28          sbit DS1=P3^7;
-  29          sbit sw1=P3^0;
-  30          sbit sw2=P3^1;
-  31          
-  32          //                      Ãë    ·Ö  Ê±    ÈÕ    ÔÂ  Äê  ĞÇÆÚ
-  33          uchar code init_ds[]  ={0x00,0x00,0x00,0x01,0x01,0x00,0x13}; 
-  34          uchar code write_add[]={0x80,0x82,0x84};   //Ğ´µØÖ·,0x86,0x88,0x8c,0x8a
-  35          uchar code read_add[] ={0x81,0x83,0x85};   //¶ÁµØÖ·,0x87,0x89,0x8d,0x8b 
-  36          uchar dat1[]={0xC0,0xF9,0xA4,0xB0,0x99,0x92,0x82,0xf8,0X80,0X90,0xff,0xc6};//ÕıÁ¢ÎŞĞ¡Êıµã
-  37          uchar dat2[]={0x40,0x79,0x24,0x30,0x19,0x12,0x02,0x78,0X00,0X10,0xff};//ÕıÁ¢ÓĞĞ¡Êıµã
-  38          uchar dat3[]={0x40,0x4F,0x24,0x06,0x0B,0x12,0x10,0x47,0X00,0X02,0xff};//µ¹Á¢ÓĞĞ¡Êıµã
-  39          uchar dat4[]={0xC0,0xCF,0xA4,0x86,0x8B,0x92,0x90,0xC7,0X80,0X82,0xff};//µ¹Á¢ÎŞĞ¡Êıµã
-  40          uchar Differ_Time=0;//²»Í¬Êı×ÖËùĞèÒªÑÓÊ±Ê±¼ä
-  41          uchar table[4]={0};
-  42          uchar nk=0;
-  43          uchar gk=0;
-  44          uchar menu;
-  45          uchar i=0;
-  46          uchar point_display=0;
-  47          
-  48          uint tem=0,lum=0;
-  49          uint ld;
-  50          uint fen;
-  51          uint shi;
-  52          uint miao;
-  53          uint nfen;
-  54          uint nshi;
-  55          uint fen,shi,miao;//,ri,yue,week,nian=0x20;
-C51 COMPILER V9.59.0.0   MAIN                                                              12/25/2022 17:26:32 PAGE 2   
+   5          #define uchar unsigned char   //æ— ç¬¦å·å­—ç¬¦å‹ å®å®šä¹‰  å˜é‡èŒƒå›´0~255
+   6          #define uint  unsigned int    //æ— ç¬¦å·æ•´å‹ å®å®šä¹‰ å˜é‡èŒƒå›´0~65535
+   7          
+   8          #define ADC_POWER   0x80            //ADCç”µæºæ§åˆ¶ä½
+   9          #define ADC_FLAG    0x10            //ADCå®Œæˆæ ‡å¿—
+  10          #define ADC_START   0x08            //ADCèµ·å§‹æ§åˆ¶ä½
+  11          #define ADC_SPEEDLL 0x00            //540ä¸ªæ—¶é’Ÿ
+  12          #define ADC_SPEEDL  0x20            //360ä¸ªæ—¶é’Ÿ
+  13          #define ADC_SPEEDH  0x40            //180ä¸ªæ—¶é’Ÿ
+  14          #define ADC_SPEEDHH 0x60            //90ä¸ªæ—¶é’Ÿ
+  15          
+  16          sfr ADC_LOW2    =   0xBE;           //ADCä½2ä½ç»“æœ
+  17          
+  18          bit nx;
+  19          bit sw;
+  20          bit nx=0;
+  21          bit sw=0;       //æ¸©åº¦æ—¶é—´åˆ‡æ¢
+  22          
+  23          sbit clk = P3^2;      //ds1302æ—¶é’Ÿçº¿å®šä¹‰
+  24          sbit io =  P5^5;      //æ•°æ®çº¿
+  25          sbit rst = P5^4;      //å¤ä½çº¿
+  26          sbit DS4=P3^4;
+  27          sbit DS3=P3^5;
+  28          sbit DS2=P3^6;
+  29          sbit DS1=P3^7;
+  30          sbit sw1=P3^0;
+  31          sbit sw2=P3^1;
+  32          
+  33          //            ç§’   åˆ† æ—¶ æ—¥   æœˆ å¹´ æ˜ŸæœŸ
+  34          uchar code init_ds[]  ={0x00,0x00,0x00,0x01,0x01,0x00,0x13}; 
+  35          uchar code write_add[]={0x80,0x82,0x84};   //å†™åœ°å€,0x86,0x88,0x8c,0x8a
+  36          uchar code read_add[] ={0x81,0x83,0x85};   //è¯»åœ°å€,0x87,0x89,0x8d,0x8b 
+  37          uchar dat1[]={0xC0,0xF9,0xA4,0xB0,0x99,0x92,0x82,0xf8,0X80,0X90,0xff,0xc6};//æ­£ç«‹æ— å°æ•°ç‚¹
+  38          uchar dat2[]={0x40,0x79,0x24,0x30,0x19,0x12,0x02,0x78,0X00,0X10,0xff};//æ­£ç«‹æœ‰å°æ•°ç‚¹
+  39          uchar dat3[]={0x40,0x4F,0x24,0x06,0x0B,0x12,0x10,0x47,0X00,0X02,0xff};//å€’ç«‹æœ‰å°æ•°ç‚¹
+  40          uchar dat4[]={0xC0,0xCF,0xA4,0x86,0x8B,0x92,0x90,0xC7,0X80,0X82,0xff};//å€’ç«‹æ— å°æ•°ç‚¹
+  41          uchar Differ_Time=0;//ä¸åŒæ•°å­—æ‰€éœ€è¦å»¶æ—¶æ—¶é—´
+  42          uchar table[4]={0};
+  43          uchar nk=0;
+  44          uchar gk=0;
+  45          uchar menu;
+  46          uchar i=0;
+  47          uchar point_display=0;
+  48          
+  49          uint tem=0,lum=0;
+  50          uint ld;
+  51          uint fen;
+  52          uint shi;
+  53          uint miao;
+  54          uint fen,shi,miao;//,ri,yue,week,nian=0x20;
+  55          uint is_not_display_tem=0;
+C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 2   
 
-  56          uint nfen=0;
-  57          uint nshi=0;
-  58          uint is_not_display_tem=0;
-  59          uint is_not_display_lum=0;
-  60          uint is_not_collect=0;
-  61          uint two_point_flag=0;
-  62          uint cycle_display_flag=0;
-  63          uint AD_collect_flag=0;
-  64          
-  65          void Delayms(uint t)
-  66          {
-  67   1        uchar i;
-  68   1        while(t--)
-  69   1          for(i=0;i<123;i++);
-  70   1      }
-  71          
-  72          void Delay_select(uchar i)
-  73          {
-  74   1        switch(i)
-  75   1        {
-  76   2          case 0:Differ_Time=5;break;
-  77   2          case 1:Differ_Time=2;break;
-  78   2          case 2:Differ_Time=5;break;
-  79   2          case 3:Differ_Time=5;break;
-  80   2          case 4:Differ_Time=4;break;
-  81   2          case 5:Differ_Time=5;break;
-  82   2          case 6:Differ_Time=5;break;
-  83   2          case 7:Differ_Time=3;break;
-  84   2          case 8:Differ_Time=5;break;
-  85   2          case 9:Differ_Time=5;break;
-  86   2          default:break;
-  87   2        }
-  88   1      }
-  89          
-  90          void display(uint local,uint is_not_time)//localĞ¡ÊıµãÎ»ÖÃ,is_not_timeÊÇ·ñÊÇÏÔÊ¾Ê±¼äµÄ¸ñÊ½
-  91          {
-  92   1        P2=0XFF;
-  93   1        DS1=1;
-  94   1        DS2=0;
-  95   1        DS3=0;
-  96   1        DS4=0;
-  97   1        
-  98   1        if(local==0)
-  99   1        {
- 100   2          P2=dat2[table[0]];
- 101   2        }
- 102   1        else
- 103   1        {
- 104   2          P2=dat1[table[0]];
- 105   2        }
- 106   1        Delay_select(table[0]);
- 107   1        Delayms(Differ_Time);
- 108   1      
- 109   1        P2=0XFF;
- 110   1        DS1=0;
- 111   1        DS2=1;
- 112   1        DS3=0;
- 113   1        DS4=0;
- 114   1        if(is_not_time==1)
- 115   1        {
- 116   2          if(point_display==1)
- 117   2          {
-C51 COMPILER V9.59.0.0   MAIN                                                              12/25/2022 17:26:32 PAGE 3   
+  56          uint is_not_display_lum=0;
+  57          uint is_not_collect=0;
+  58          uint two_point_flag=0;
+  59          uint cycle_display_flag=0;
+  60          uint AD_collect_flag=0;
+  61          
+  62          void Delayms(uint t)
+  63          {
+  64   1        uchar i;
+  65   1        while(t--)for(i=0;i<123;i++);
+  66   1      }
+  67          
+  68          void Delay_select(uchar i)
+  69          {
+  70   1        switch(i)
+  71   1        {
+  72   2          case 0:Differ_Time=5;break;
+  73   2          case 1:Differ_Time=2;break;
+  74   2          case 2:Differ_Time=5;break;
+  75   2          case 3:Differ_Time=5;break;
+  76   2          case 4:Differ_Time=4;break;
+  77   2          case 5:Differ_Time=5;break;
+  78   2          case 6:Differ_Time=5;break;
+  79   2          case 7:Differ_Time=3;break;
+  80   2          case 8:Differ_Time=5;break;
+  81   2          case 9:Differ_Time=5;break;
+  82   2          default:break;
+  83   2        }
+  84   1      }
+  85          
+  86          //localå°æ•°ç‚¹ä½ç½®,is_not_timeæ˜¯å¦æ˜¯æ˜¾ç¤ºæ—¶é—´çš„æ ¼å¼
+  87          void display(uint local,uint is_not_time)
+  88          {
+  89   1        P2=0XFF;
+  90   1        DS1=1;
+  91   1        DS2=0;
+  92   1        DS3=0;
+  93   1        DS4=0;
+  94   1        if(local==0)P2=dat2[table[0]];
+  95   1        else P2=dat1[table[0]];
+  96   1        Delay_select(table[0]);
+  97   1        Delayms(Differ_Time);
+  98   1      
+  99   1        P2=0XFF;
+ 100   1        DS1=0;
+ 101   1        DS2=1;
+ 102   1        DS3=0;
+ 103   1        DS4=0;
+ 104   1        if(is_not_time==1)
+ 105   1        {
+ 106   2          if(point_display==1)P2=dat2[table[1]];
+ 107   2          else if(point_display==0)P2=dat1[table[1]];
+ 108   2        }
+ 109   1        else if(is_not_time==0)
+ 110   1        {
+ 111   2          if(local==1)P2=dat2[table[1]];
+ 112   2          else P2=dat1[table[1]];
+ 113   2        }
+ 114   1        Delay_select(table[1]);
+ 115   1        Delayms(Differ_Time);
+ 116   1      
+ 117   1        P2=0XFF;
+C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 3   
 
- 118   3            P2=dat2[table[1]];
- 119   3          }
- 120   2          else if(point_display==0)
- 121   2          {
- 122   3            P2=dat1[table[1]];
- 123   3          }
- 124   2        }
- 125   1        else if(is_not_time==0)
- 126   1        {
- 127   2          if(local==1)
- 128   2          {
- 129   3            P2=dat2[table[1]];
- 130   3          }
- 131   2          else
- 132   2          {
- 133   3            P2=dat1[table[1]];
- 134   3          }
- 135   2        }
- 136   1        Delay_select(table[1]);
- 137   1        Delayms(Differ_Time);
- 138   1      
- 139   1        P2=0XFF;
- 140   1        DS1=0;
- 141   1        DS2=0;
- 142   1        DS3=1;
- 143   1        DS4=0;
- 144   1        //Èç¹ûÊÇÏÔÊ¾Ê±¼ä£¬ÔòµÚÈı¸öÊıÂë¹ÜÒ»¶¨ÒªÏÔÊ¾Ğ¡Êıµã£¬ÇÒĞ¡ÊıµãÉÁË¸
- 145   1        //Èç¹û²»ÊÇÏÔÊ¾Ê±¼ä£¬Ôò¸ù¾İĞèÇóÏÔÊ¾
- 146   1        if(is_not_time==1)
- 147   1        {
- 148   2          if(point_display==1)
- 149   2          {
- 150   3            P2=dat3[table[2]];
- 151   3          }
- 152   2          else if(point_display==0)
- 153   2          {
- 154   3            P2=dat4[table[2]];
- 155   3          }
- 156   2        }
- 157   1        else if(is_not_time==0)
- 158   1        {
- 159   2          if(local==2)
- 160   2          {
- 161   3            P2=dat3[table[2]];
- 162   3          }
- 163   2          else
- 164   2          {
- 165   3            P2=dat4[table[2]];
- 166   3          }
- 167   2        }
- 168   1        Delay_select(table[2]);
- 169   1        Delayms(Differ_Time);
- 170   1      
- 171   1        P2=0XFF;
- 172   1        DS1=0;
- 173   1        DS2=0;
- 174   1        DS3=0;
- 175   1        DS4=1;
- 176   1        if(local==3)
- 177   1        {
- 178   2          P2=dat2[table[3]];
- 179   2        }
-C51 COMPILER V9.59.0.0   MAIN                                                              12/25/2022 17:26:32 PAGE 4   
+ 118   1        DS1=0;
+ 119   1        DS2=0;
+ 120   1        DS3=1;
+ 121   1        DS4=0;
+ 122   1        //å¦‚æœæ˜¯æ˜¾ç¤ºæ—¶é—´ï¼Œåˆ™ç¬¬ä¸‰ä¸ªæ•°ç ç®¡ä¸€å®šè¦æ˜¾ç¤ºå°æ•°ç‚¹ï¼Œä¸”å°æ•°ç‚¹é—ªçƒ
+ 123   1        //å¦‚æœä¸æ˜¯æ˜¾ç¤ºæ—¶é—´ï¼Œåˆ™æ ¹æ®éœ€æ±‚æ˜¾ç¤º
+ 124   1        if(is_not_time==1)
+ 125   1        {
+ 126   2          if(point_display==1)P2=dat3[table[2]];
+ 127   2          else if(point_display==0)P2=dat4[table[2]];
+ 128   2        }
+ 129   1        else if(is_not_time==0)
+ 130   1        {
+ 131   2          if(local==2)P2=dat3[table[2]];
+ 132   2          else P2=dat4[table[2]];
+ 133   2        }
+ 134   1        Delay_select(table[2]);
+ 135   1        Delayms(Differ_Time);
+ 136   1      
+ 137   1        P2=0XFF;
+ 138   1        DS1=0;
+ 139   1        DS2=0;
+ 140   1        DS3=0;
+ 141   1        DS4=1;
+ 142   1        if(local==3)P2=dat2[table[3]];
+ 143   1        else P2=dat1[table[3]];
+ 144   1        Delay_select(table[3]);
+ 145   1        Delayms(Differ_Time);
+ 146   1      
+ 147   1        DS1=0;
+ 148   1        DS2=0;
+ 149   1        DS3=0;
+ 150   1        DS4=0;
+ 151   1      }
+ 152          
+ 153          /*************å†™ä¸€ä¸ªæ•°æ®åˆ°å¯¹åº”çš„åœ°å€é‡Œ***************/
+ 154          void write_ds1302(uchar add,uchar dat)
+ 155          {
+ 156   1        uchar i;
+ 157   1        rst = 1;       //æŠŠå¤ä½çº¿æ‹¿é«˜
+ 158   1        for(i=0;i<8;i++)
+ 159   1        {            //ä½ä½åœ¨å‰
+ 160   2          clk = 0;     //æ—¶é’Ÿçº¿æ‹¿ä½å¼€å§‹å†™æ•°æ®
+ 161   2          io = add & 0x01;
+ 162   2          add >>= 1;     //æŠŠåœ°å€å³ç§»ä¸€ä½
+ 163   2          clk = 1;     //æ—¶é’Ÿçº¿æ‹¿é«˜
+ 164   2        } 
+ 165   1        for(i=0;i<8;i++)
+ 166   1        {
+ 167   2          clk = 0;     //æ—¶é’Ÿçº¿æ‹¿ä½å¼€å§‹å†™æ•°æ®
+ 168   2          io = dat & 0x01;
+ 169   2          dat >>= 1;     //æŠŠæ•°æ®å³ç§»ä¸€ä½
+ 170   2          clk = 1;     //æ—¶é’Ÿçº¿æ‹¿é«˜
+ 171   2        }
+ 172   1        rst = 0;       //å¤ä½çº¿åˆä½
+ 173   1        clk = 0;
+ 174   1        io = 0;
+ 175   1      }
+ 176          
+ 177          /*************ä»å¯¹åº”çš„åœ°å€è¯»ä¸€ä¸ªæ•°æ®å‡ºæ¥***************/
+ 178          uchar read_ds1302(uchar add)
+ 179          {
+C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 4   
 
- 180   1        else
- 181   1        {
- 182   2          P2=dat1[table[3]];
- 183   2        }
- 184   1        Delay_select(table[3]);
- 185   1        Delayms(Differ_Time);
- 186   1      
- 187   1        DS1=0;
- 188   1        DS2=0;
- 189   1        DS3=0;
- 190   1        DS4=0;
- 191   1      }
- 192          
- 193          /*************Ğ´Ò»¸öÊı¾İµ½¶ÔÓ¦µÄµØÖ·Àï***************/
- 194          void write_ds1302(uchar add,uchar dat)
- 195          {
- 196   1        uchar i;
- 197   1        rst = 1;       //°Ñ¸´Î»ÏßÄÃ¸ß
- 198   1        for(i=0;i<8;i++)
- 199   1        {            //µÍÎ»ÔÚÇ°
- 200   2          clk = 0;     //Ê±ÖÓÏßÄÃµÍ¿ªÊ¼Ğ´Êı¾İ
- 201   2          io = add & 0x01;
- 202   2          add >>= 1;     //°ÑµØÖ·ÓÒÒÆÒ»Î»
- 203   2          clk = 1;     //Ê±ÖÓÏßÄÃ¸ß
- 204   2        } 
- 205   1        for(i=0;i<8;i++)
- 206   1        {
- 207   2          clk = 0;     //Ê±ÖÓÏßÄÃµÍ¿ªÊ¼Ğ´Êı¾İ
- 208   2          io = dat & 0x01;
- 209   2          dat >>= 1;     //°ÑÊı¾İÓÒÒÆÒ»Î»
- 210   2          clk = 1;     //Ê±ÖÓÏßÄÃ¸ß
- 211   2        }
- 212   1        rst = 0;       //¸´Î»ÏßºÏµÍ
- 213   1        clk = 0;
- 214   1        io = 0;
- 215   1      }
- 216          
- 217          /*************´Ó¶ÔÓ¦µÄµØÖ·¶ÁÒ»¸öÊı¾İ³öÀ´***************/
- 218          uchar read_ds1302(uchar add)
- 219          {
- 220   1        uchar value,i;
- 221   1        rst = 1;       //°Ñ¸´Î»ÏßÄÃ¸ß
- 222   1        for(i=0;i<8;i++)
- 223   1        {            //µÍÎ»ÔÚÇ°
- 224   2          clk = 0;     //Ê±ÖÓÏßÄÃµÍ¿ªÊ¼Ğ´Êı¾İ
- 225   2          io = add & 0x01;      
- 226   2          add >>= 1;     //°ÑµØÖ·ÓÒÒÆÒ»Î»
- 227   2          clk = 1;     //Ê±ÖÓÏßÄÃ¸ß
- 228   2        }   
- 229   1        for(i=0;i<8;i++)
- 230   1        {
- 231   2          clk = 0;     //Ê±ÖÓÏßÄÃµÍ¿ªÊ¼¶ÁÊı¾İ
- 232   2          value >>= 1;
- 233   2          if(io == 1)
- 234   2            value |= 0x80;
- 235   2          clk = 1;     //Ê±ÖÓÏßÄÃ¸ß
- 236   2        }
- 237   1        rst = 0;       //¸´Î»ÏßºÏµÍ
- 238   1        clk = 0;
- 239   1        io = 0;
- 240   1        return value;    //·µ»Ø¶Á³öÀ´µÄÊı¾İ
- 241   1      }
-C51 COMPILER V9.59.0.0   MAIN                                                              12/25/2022 17:26:32 PAGE 5   
+ 180   1        uchar value,i;
+ 181   1        rst = 1;       //æŠŠå¤ä½çº¿æ‹¿é«˜
+ 182   1        for(i=0;i<8;i++)
+ 183   1        {            //ä½ä½åœ¨å‰
+ 184   2          clk = 0;     //æ—¶é’Ÿçº¿æ‹¿ä½å¼€å§‹å†™æ•°æ®
+ 185   2          io = add & 0x01;      
+ 186   2          add >>= 1;     //æŠŠåœ°å€å³ç§»ä¸€ä½
+ 187   2          clk = 1;     //æ—¶é’Ÿçº¿æ‹¿é«˜
+ 188   2        }   
+ 189   1        for(i=0;i<8;i++)
+ 190   1        {
+ 191   2          clk = 0;     //æ—¶é’Ÿçº¿æ‹¿ä½å¼€å§‹è¯»æ•°æ®
+ 192   2          value >>= 1;
+ 193   2          if(io == 1)
+ 194   2            value |= 0x80;
+ 195   2          clk = 1;     //æ—¶é’Ÿçº¿æ‹¿é«˜
+ 196   2        }
+ 197   1        rst = 0;       //å¤ä½çº¿åˆä½
+ 198   1        clk = 0;
+ 199   1        io = 0;
+ 200   1        return value;    //è¿”å›è¯»å‡ºæ¥çš„æ•°æ®
+ 201   1      }
+ 202          
+ 203          /*************æŠŠè¦çš„æ—¶é—´ å¹´æœˆæ—¥ éƒ½è¯»å‡ºæ¥***************/
+ 204          void read_time()
+ 205          {
+ 206   1      //  miao = read_ds1302(read_add[0]);  //è¯»ç§’
+ 207   1        fen  = read_ds1302(0x83);     //è¯»åˆ†
+ 208   1        shi  = read_ds1302(0x85);     //è¯»æ—¶
+ 209   1      //  ri   = read_ds1302(read_add[3]);  //è¯»æ—¥
+ 210   1      //  yue  = read_ds1302(read_add[4]);  //è¯»æœˆ
+ 211   1      //  nian = read_ds1302(read_add[5]);  //è¯»å¹´
+ 212   1      //  week = read_ds1302(read_add[6]);  //è¯»æ˜ŸæœŸ
+ 213   1      }
+ 214          
+ 215          /*************æŠŠè¦å†™çš„æ—¶é—´ å¹´æœˆæ—¥ éƒ½å†™å…¥ds1302é‡Œ***************/
+ 216          void write_time()
+ 217          {
+ 218   1        write_ds1302(0x8e,0x00);      //å…³é—­å†™ä¿æŠ¤
+ 219   1      //  write_ds1302(write_add[0],miao);  //å†™ç§’
+ 220   1        write_ds1302(0x80,miao);      //å†™ç§’
+ 221   1        write_ds1302(0x82,fen);       //å†™åˆ†
+ 222   1        write_ds1302(0x84,shi);       //å†™æ—¶
+ 223   1      //  write_ds1302(write_add[3],ri);    //å†™æ—¥
+ 224   1      //  write_ds1302(write_add[4],yue);   //å†™æœˆ
+ 225   1      //  write_ds1302(write_add[5],nian);  //å†™å¹´
+ 226   1      //  write_ds1302(write_add[6],week);  //å†™æ˜ŸæœŸ
+ 227   1        write_ds1302(0x8e,0x80);      //æ‰“å¼€å†™ä¿æŠ¤
+ 228   1      }
+ 229          
+ 230          void write_setting()
+ 231          {
+ 232   1        write_ds1302(0x8e,0x00);
+ 233   1        write_ds1302(0xcc,sw);
+ 234   1        write_ds1302(0xca,nx);
+ 235   1        write_ds1302(0xc8,gk);
+ 236   1        write_ds1302(0xc6,nk);
+ 237   1        write_ds1302(0x8e,0x80);
+ 238   1      }
+ 239          
+ 240          void read_setting()
+ 241          {
+C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 5   
 
- 242          
- 243          /*************°ÑÒªµÄÊ±¼ä ÄêÔÂÈÕ ¶¼¶Á³öÀ´***************/
- 244          void read_time()
- 245          {
- 246   1      //  miao = read_ds1302(read_add[0]);  //¶ÁÃë
- 247   1      
- 248   1        fen  = read_ds1302(0x83); //¶Á·Ö
- 249   1        shi  = read_ds1302(0x85); //¶ÁÊ±
- 250   1      
- 251   1      //  ri   = read_ds1302(read_add[3]);  //¶ÁÈÕ
- 252   1      //  yue  = read_ds1302(read_add[4]);  //¶ÁÔÂ
- 253   1      //  nian = read_ds1302(read_add[5]);  //¶ÁÄê
- 254   1      //  week = read_ds1302(read_add[6]);  //¶ÁĞÇÆÚ
- 255   1      }
- 256          
- 257          /*************°ÑÒªĞ´µÄÊ±¼ä ÄêÔÂÈÕ ¶¼Ğ´Èëds1302Àï***************/
- 258          void write_time()
- 259          {
- 260   1        write_ds1302(0x8e,0x00);      //¹Ø±ÕĞ´±£»¤
- 261   1      //  write_ds1302(write_add[0],miao);  //Ğ´Ãë
- 262   1        write_ds1302(0x80,miao);    //Ğ´Ãë
- 263   1        write_ds1302(0x82,fen);   //Ğ´·Ö
- 264   1        write_ds1302(0x84,shi);   //Ğ´Ê±
- 265   1      //  write_ds1302(write_add[3],ri);    //Ğ´ÈÕ
- 266   1      //  write_ds1302(write_add[4],yue);   //Ğ´ÔÂ
- 267   1      //  write_ds1302(write_add[5],nian);  //Ğ´Äê
- 268   1      //  write_ds1302(write_add[6],week);  //Ğ´ĞÇÆÚ
- 269   1      
- 270   1        write_ds1302(0xc2,nshi);      //Ğ´Ê±
- 271   1        write_ds1302(0xc4,nfen);      //Ğ´·Ö
- 272   1      
- 273   1        write_ds1302(0x8e,0x80);      //´ò¿ªĞ´±£»¤
- 274   1      }
- 275          
- 276          void write_setting()
- 277          {
- 278   1        write_ds1302(0x8e,0x00);
- 279   1        write_ds1302(0xcc,sw);
- 280   1        write_ds1302(0xca,nx);
- 281   1        write_ds1302(0xc8,gk);
- 282   1        write_ds1302(0xc6,nk);
- 283   1        write_ds1302(0x8e,0x80);
- 284   1      }
- 285          
- 286          void read_setting()
- 287          {
- 288   1        
- 289   1        nk = read_ds1302(0xc7);         //          1100 0111 ¶ÁÈ¡Ram3
- 290   1        gk = read_ds1302(0xc9);         //          1100 1001 ¶ÁÈ¡Ram4
- 291   1        nx = read_ds1302(0xcb);
- 292   1        sw = read_ds1302(0xcd);
- 293   1      }
- 294          
- 295          /*************°ÑÊı¾İ±£´æµ½ds1302 RAMÖĞ**0-31*************/
- 296          void write_ds1302ram(uchar add,uchar dat)
- 297          {
- 298   1        add <<= 1;     //µØÖ·ÊÇ´ÓµÚ¶şÎ»¿ªÊ¼µÄ
- 299   1        add &= 0xfe;   //°Ñ×îµÍÎ»ÇåÁã  ÊÇĞ´µÄÃüÁî
- 300   1        add |= 0xc0;   //µØÖ·×î¸ßÁ½Î»Îª 1  
- 301   1        write_ds1302(0x8e,0x00);
- 302   1        write_ds1302(add,dat);  
- 303   1        write_ds1302(0x8e,0x80);
-C51 COMPILER V9.59.0.0   MAIN                                                              12/25/2022 17:26:32 PAGE 6   
+ 242   1        nk = read_ds1302(0xc7);         //1100 0111 è¯»å–Ram3
+ 243   1        gk = read_ds1302(0xc9);         //1100 1001 è¯»å–Ram4
+ 244   1        nx = read_ds1302(0xcb);
+ 245   1        sw = read_ds1302(0xcd);
+ 246   1      }
+ 247          
+ 248          //æŠŠæ•°æ®ä¿å­˜åˆ°ds1302 RAMä¸­**0-31
+ 249          void write_ds1302ram(uchar add,uchar dat)
+ 250          {
+ 251   1        add <<= 1;     //åœ°å€æ˜¯ä»ç¬¬äºŒä½å¼€å§‹çš„
+ 252   1        add &= 0xfe;   //æŠŠæœ€ä½ä½æ¸…é›¶  æ˜¯å†™çš„å‘½ä»¤
+ 253   1        add |= 0xc0;   //åœ°å€æœ€é«˜ä¸¤ä½ä¸º 1  
+ 254   1        write_ds1302(0x8e,0x00);
+ 255   1        write_ds1302(add,dat);  
+ 256   1        write_ds1302(0x8e,0x80);
+ 257   1      }
+ 258          
+ 259          //æŠŠæ•°æ®ä»ds1302 RAMè¯»å‡ºæ¥**0-31
+ 260          uchar read_ds1302ram(uchar add)
+ 261          {
+ 262   1        add <<= 1;     //åœ°å€æ˜¯ä»ç¬¬äºŒä½å¼€å§‹çš„
+ 263   1        add |= 0x01;   //æŠŠæœ€é«˜ä½ç½®1  æ˜¯è¯»å‘½ä»¤
+ 264   1        add |= 0xc0;   //åœ°å€æœ€é«˜ä¸¤ä½ä¸º 1  
+ 265   1        return(read_ds1302(add)); 
+ 266   1      }
+ 267          
+ 268          void GetADCResult(unsigned char ch,unsigned int *value)
+ 269          {
+ 270   1        ADC_CONTR = ADC_POWER | ADC_SPEEDLL | ch | ADC_START;
+ 271   1        _nop_();                            //Must wait before inquiry
+ 272   1        _nop_();
+ 273   1        _nop_();
+ 274   1        _nop_();
+ 275   1        _nop_();                            //Must wait before inquiry
+ 276   1        _nop_();
+ 277   1        while(!(ADC_CONTR & ADC_FLAG));     //Wait complete flag
+ 278   1        ADC_CONTR &= ~ADC_FLAG;             //Close ADC
+ 279   1        
+ 280   1        *value = 0;
+ 281   1        *value = ADC_RES;
+ 282   1        *value = ((*value)*4 + ADC_LOW2);   //Return ADC result
+ 283   1      }
+ 284          
+ 285          void menu()
+ 286          {
+*** ERROR C231 IN LINE 286 OF main.c: 'menu': redefinition
+ 287   1        //èœå•ä¸€å¾ªç¯æ˜¾ç¤º
+ 288   1        //èœå•äºŒåªæ˜¾ç¤ºæ—¶é—´
+ 289   1        //èœå•ä¸‰åªæ˜¾ç¤ºæ¸©åº¦
+ 290   1        //èœå•å››åªæ˜¾ç¤ºå…‰å¼ºåº¦
+ 291   1        //èœå•äº”è°ƒæ•´æ—¶
+ 292   1        //èœå•å…­è°ƒæ•´åˆ†
+ 293   1        if(menu==0)
+ 294   1        {
+ 295   2          if(is_not_display_tem==1)choose_display('T');       //ä¸€å®šæ¡ä»¶ä¸‹æ˜¾ç¤ºæ¸©åº¦
+ 296   2          else if(is_not_display_lum==1)choose_display('l');  //ä¸€å®šæ¡ä»¶ä¸‹æ˜¾ç¤ºå‘å…‰å¼ºåº¦
+ 297   2          else choose_display('t');               //å…¶ä»–æ¡ä»¶ä¸‹æ˜¾ç¤ºæ—¶é—´
+ 298   2        }
+ 299   1        if(menu==1)choose_display('t');             //åªæ˜¾ç¤ºæ—¶é—´
+ 300   1        if(menu==2)choose_display('T');             //åªæ˜¾ç¤ºæ¸©åº¦
+ 301   1        if(menu==3)choose_display('l');             //åªæ˜¾ç¤ºå…‰å¼º
+ 302   1        //è°ƒæ•´æ—¶
+C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 6   
 
- 304   1      }
- 305          
- 306          /*************°ÑÊı¾İ´Óds1302 RAM¶Á³öÀ´**0-31*************/
- 307          uchar read_ds1302ram(uchar add)
- 308          {
- 309   1        add <<= 1;     //µØÖ·ÊÇ´ÓµÚ¶şÎ»¿ªÊ¼µÄ
- 310   1        add |= 0x01;   //°Ñ×î¸ßÎ»ÖÃ1  ÊÇ¶ÁÃüÁî
- 311   1        add |= 0xc0;   //µØÖ·×î¸ßÁ½Î»Îª 1  
- 312   1        return(read_ds1302(add)); 
- 313   1      }
- 314          
- 315          
- 316          void GetADCResult(unsigned char ch,unsigned int *value)
- 317          {
- 318   1        ADC_CONTR = ADC_POWER | ADC_SPEEDLL | ch | ADC_START;
- 319   1        _nop_();                        //Must wait before inquiry
- 320   1        _nop_();
- 321   1        _nop_();
- 322   1        _nop_();
- 323   1        _nop_();                        //Must wait before inquiry
- 324   1        _nop_();
- 325   1        while(!(ADC_CONTR & ADC_FLAG));//Wait complete flag
- 326   1        ADC_CONTR &= ~ADC_FLAG;         //Close ADC
- 327   1        
- 328   1        *value = 0;
- 329   1        *value = ADC_RES;
- 330   1        *value = ((*value)*4 + ADC_LOW2);   //Return ADC result.¡Á¡é¨º¨ª¦Ì?¡ä????¨°¡¤¦Ì??8??ADC?¨¢1?
- 331   1      }
- 332          
- 333          //ÊÕ¼¯ÎÂ¶ÈºÍ¹âÇ¿¶È
- 334          void collect_tem_and_lum()
- 335          {
- 336   1        //ÔÊĞí²ÉÑù
- 337   1        if(is_not_collect==1)
- 338   1        {
- 339   2          is_not_collect=0;
- 340   2          GetADCResult(2,&lum);   //¹âÃôAD²ÉÑù
- 341   2          GetADCResult(3,&tem);   //ÈÈÃôAD²ÉÑù
- 342   2          tem = (unsigned int) ( ( 3950.0 / ( 11.33657 + log( 6.04 * (float)tem / ( 1024.0 - (float)tem ) ) ) - 27
+ 303   1        if(menu==4)
+ 304   1        {
+ 305   2          //é—ªçƒ
+ 306   2          if(point_display==1)
+ 307   2          {
+ 308   3            table[2]=fen/16;
+ 309   3            table[3]=fen%16;
+ 310   3          }
+ 311   2          else
+ 312   2          {
+ 313   3            table[2]=10;
+ 314   3            table[3]=10;
+ 315   3          }
+ 316   2          table[0]=shi/16;
+ 317   2          table[1]=shi%16;
+ 318   2          choose_display('s');
+ 319   2        }
+ 320   1        //è°ƒæ•´åˆ†
+ 321   1        if(menu==5)
+ 322   1        {
+ 323   2          table[2]=fen/16;
+ 324   2          table[3]=fen%16;
+ 325   2          //é—ªçƒ
+ 326   2          if(point_display>0)
+ 327   2          {
+ 328   3            table[0]=shi/16;
+ 329   3            table[1]=shi%16;
+ 330   3          }
+ 331   2          else
+ 332   2          {
+ 333   3            table[0]=10;
+ 334   3            table[1]=10;
+ 335   3          }
+ 336   2          choose_display('s');
+ 337   2        }
+ 338   1      }
+ 339          //æ”¶é›†æ¸©åº¦å’Œå…‰å¼ºåº¦
+ 340          void collect_tem_and_lum()
+ 341          {
+ 342   1        //å…è®¸é‡‡æ ·
+ 343   1        if(is_not_collect==1)
+ 344   1        {
+ 345   2          is_not_collect=0;
+ 346   2          GetADCResult(2,&lum);   //å…‰æ•ADé‡‡æ ·
+ 347   2          GetADCResult(3,&tem);   //çƒ­æ•ADé‡‡æ ·
+ 348   2          tem = (unsigned int) ( ( 3950.0 / ( 11.33657 + log( 6.04 * (float)tem / ( 1024.0 - (float)tem ) ) ) - 27
              -8.15) * 100 );
- 343   2        }
- 344   1        //¹â¿ØÖÆÏÔÊ¾ÁÁ¶È
- 345   1        ld=(lum/50)*8;
- 346   1      }
- 347          
- 348          void choose_display(uchar choose)
- 349          {
- 350   1        if(choose == 't')
- 351   1        {
- 352   2          read_time();
- 353   2      
- 354   2          table[0]=shi/16;
- 355   2          table[1]=shi%16;
- 356   2          table[2]=fen/16;
- 357   2          table[3]=fen%16;
- 358   2      
- 359   2          display(1,1);
- 360   2          Delayms(ld);
- 361   2        }
- 362   1        else if(choose == 'T')
- 363   1        {
- 364   2          if(tem>=10)
-C51 COMPILER V9.59.0.0   MAIN                                                              12/25/2022 17:26:32 PAGE 7   
+ 349   2        }
+ 350   1        //å…‰æ§åˆ¶æ˜¾ç¤ºäº®åº¦
+ 351   1        ld=(lum/50)*5;
+ 352   1      }
+ 353          
+ 354          void choose_display(uchar choose)
+ 355          {
+ 356   1        if(choose == 't')
+ 357   1        {
+ 358   2          read_time();
+ 359   2          table[0]=shi/16;
+ 360   2          table[1]=shi%16;
+ 361   2          table[2]=fen/16;
+ 362   2          table[3]=fen%16;
+ 363   2          display(1,1);
+C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 7   
 
- 365   2          {
- 366   3            table[0]=tem/1000;
- 367   3            table[1]=tem%1000/100;
- 368   3            table[2]=tem%1000%100/10;
- 369   3            table[3]=11;
- 370   3          }
- 371   2          else if(tem<10)
- 372   2          {
- 373   3            table[0]=tem%1000/100;
- 374   3            table[1]=tem%1000%100/10;
- 375   3            table[2]=tem%1000%100%10;
- 376   3            table[3]=11;
- 377   3          }
- 378   2          display(1,0);
- 379   2          Delayms(ld);
- 380   2        }
- 381   1        else if(choose == 'l')
- 382   1        {
- 383   2          table[0]=lum/1000;
- 384   2          table[1]=lum%1000/100;
- 385   2          table[2]=lum%1000%100/10;
- 386   2          table[3]=lum%1000%100%10;
- 387   2          display(3,0);
- 388   2          Delayms(ld);
- 389   2        }
- 390   1      }
- 391          
- 392          void key()
- 393          {
- 394   1        if(sw1==0)
- 395   1        {
- 396   2          menu++;
- 397   2          if(menu==6){menu=0;write_time();}
- 398   2          while(sw1==0);//È·±£ËÉÊÖÖ®Ç°²»±ä
+ 364   2          Delayms(ld);
+ 365   2        }
+ 366   1        else if(choose == 'T')
+ 367   1        {
+ 368   2          if(tem>=10)
+ 369   2          {
+ 370   3            table[0]=tem/1000;
+ 371   3            table[1]=tem%1000/100;
+ 372   3            table[2]=tem%1000%100/10;
+ 373   3            table[3]=11;
+ 374   3          }
+ 375   2          else if(tem<10)
+ 376   2          {
+ 377   3            table[0]=tem%1000/100;
+ 378   3            table[1]=tem%1000%100/10;
+ 379   3            table[2]=tem%1000%100%10;
+ 380   3            table[3]=11;
+ 381   3          }
+ 382   2          display(1,0);
+ 383   2          Delayms(ld);
+ 384   2        }
+ 385   1        else if(choose == 'l')
+ 386   1        {
+ 387   2          table[0]=lum/1000;
+ 388   2          table[1]=lum%1000/100;
+ 389   2          table[2]=lum%1000%100/10;
+ 390   2          table[3]=lum%1000%100%10;
+ 391   2          display(3,0);
+ 392   2          Delayms(ld);
+ 393   2        }
+ 394   1        //èœå•å››å’Œäº”è®¾ç½®æ—¶é—´çš„æ˜¾ç¤º
+ 395   1        else if(choose == 's')
+ 396   1        {
+ 397   2          display(1,1);
+ 398   2          Delayms(ld);
  399   2        }
- 400   1        
- 401   1        //ÔÚÊ±¼äÏÔÊ¾Ò³Ãæ£¬°´ÏÂsw2¾Í¿ÉÒÔ³õÊ¼»¯Ê±¼ä
- 402   1        if(menu==0 || menu==1)
- 403   1        {
- 404   2          if(sw2==0)
- 405   2          {
- 406   3            //init_ds1302
- 407   3            /*************³õÊ¼»¯ds1302Ê±¼ä***************/
- 408   3            rst = 0;  //µÚÒ»´Î¶ÁĞ´Êı¾İÊ±Òª°ÑIOÆ·ÄÃµÍ
- 409   3            clk = 0;
- 410   3            io = 0;
- 411   3            i = read_ds1302ram(30);   
- 412   3            if(i != 3)
- 413   3            {
- 414   4              i = 3;
- 415   4              write_ds1302ram(30,i);
- 416   4              write_ds1302(0x8e,0x00);  //¹Ø±ÕĞ´±£»¤
- 417   4              for(i=0;i<3;i++)
- 418   4                write_ds1302(write_add[i],init_ds[i]);  //°Ñ×î¸ßÎ»Öµ0 ÔÊĞíds1302¹¤×÷
- 419   4              write_ds1302(0x8e,0x80);  //´ò¿ªĞ´±£»¤
- 420   4            }
- 421   3            while(sw2==0);
- 422   3          }
- 423   2        }
- 424   1        if(menu==4)
- 425   1        {
- 426   2          if(sw2==0)
-C51 COMPILER V9.59.0.0   MAIN                                                              12/25/2022 17:26:32 PAGE 8   
+ 400   1      }
+ 401          
+ 402          void key()
+ 403          {
+ 404   1        if(sw1==0)
+ 405   1        {
+ 406   2          menu++;
+ 407   2          if(menu==6){menu=0;write_time();}
+ 408   2          while(sw1==0);//ç¡®ä¿æ¾æ‰‹ä¹‹å‰ä¸å˜
+ 409   2        }
+ 410   1        //åœ¨æ—¶é—´æ˜¾ç¤ºé¡µé¢ï¼ŒæŒ‰ä¸‹sw2å°±å¯ä»¥åˆå§‹åŒ–æ—¶é—´
+ 411   1        if(menu==0 || menu==1)
+ 412   1        {
+ 413   2          if(sw2==0)
+ 414   2          {
+ 415   3            write_ds1302(0x8e,0x00);  //å…³é—­å†™ä¿æŠ¤
+ 416   3            for(i=0;i<3;i++)write_ds1302(write_add[i],init_ds[i]);  //æŠŠæœ€é«˜ä½å€¼0 å…è®¸ds1302å·¥ä½œ
+ 417   3            write_ds1302(0x8e,0x80);  //æ‰“å¼€å†™ä¿æŠ¤
+ 418   3            while(sw2==0);
+ 419   3          }
+ 420   2        }
+ 421   1        if(menu==4)
+ 422   1        {
+ 423   2          if(sw2==0)
+ 424   2          {
+ 425   3            if(fen >= 0x59)fen=0;
+C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 8   
 
- 427   2          {
- 428   3            if(fen >= 0x59)fen=0;
- 429   3            else fen=fen+0x01;
- 430   3            if((fen & 0x0f) >= 0x0a)fen = (fen & 0xf0) + 0x10;
- 431   3            while(sw2==0);
- 432   3            miao=0;//ÃëÖÓ¹éÁã
- 433   3          }
- 434   2        }
- 435   1        if(menu==5)
- 436   1        {
- 437   2          if(sw2==0)
- 438   2          {
- 439   3            shi+=0x01;
- 440   3            if((shi & 0x0f) >= 0x0a)shi = (shi & 0xf0) + 0x10;
- 441   3            if(shi >= 0x24)shi = 0;
- 442   3            while(sw2==0);
- 443   3            miao=0;//ÃëÖÓ¹éÁã
- 444   3          }
- 445   2        }
- 446   1        write_setting();   //¶Ïµç±£´æ
- 447   1      }
- 448          
- 449          void init()
- 450          {
- 451   1        uchar i;
- 452   1        
- 453   1        //init
- 454   1        TMOD= 0x01;
- 455   1        TL0 = (65536-50000)/256;        //ÉèÖÃ¶¨Ê±³õÖµ
- 456   1        TH0 = (65536-50000)%256;        //ÉèÖÃ¶¨Ê±³õÖµ
- 457   1        ET0 = 1;
- 458   1        TR0 = 1;
- 459   1        EA = 1;
- 460   1        
- 461   1        //InitADC
- 462   1        P1ASF = 0x7f;                 //Open channels ADC function 0100 0000 p1.6Ê¹ÓÃAD¹¦ÄÜ
- 463   1        ADC_RES  = 0;                       //Clear previous result
- 464   1        ADC_LOW2 = 0;
- 465   1        ADC_CONTR = ADC_POWER | ADC_SPEEDLL;
- 466   1        
- 467   1        //init_ds1302_io
- 468   1        rst = 0;  //µÚÒ»´Î¶ÁĞ´Êı¾İÊ±Òª°ÑIOÆ·ÄÃµÍ
- 469   1        clk = 0;
- 470   1        io = 0;
- 471   1        
- 472   1        //init_ds1302
- 473   1        /*************³õÊ¼»¯ds1302Ê±¼ä***************/
- 474   1        rst = 0;  //µÚÒ»´Î¶ÁĞ´Êı¾İÊ±Òª°ÑIOÆ·ÄÃµÍ
- 475   1        clk = 0;
- 476   1        io = 0;
- 477   1        i = read_ds1302ram(30);   
- 478   1        if(i != 3)
- 479   1        {
- 480   2          i = 3;
- 481   2          write_ds1302ram(30,i);
- 482   2          write_ds1302(0x8e,0x00);  //¹Ø±ÕĞ´±£»¤
- 483   2          for(i=0;i<3;i++)
- 484   2            write_ds1302(write_add[i],init_ds[i]);  //°Ñ×î¸ßÎ»Öµ0 ÔÊĞíds1302¹¤×÷
- 485   2          write_ds1302(0x8e,0x80);  //´ò¿ªĞ´±£»¤
- 486   2        }
- 487   1      }
- 488          
-C51 COMPILER V9.59.0.0   MAIN                                                              12/25/2022 17:26:32 PAGE 9   
+ 426   3            else fen=fen+0x01;
+ 427   3            if((fen & 0x0f) >= 0x0a)fen = (fen & 0xf0) + 0x10;
+ 428   3            while(sw2==0);
+ 429   3            miao=0;//ç§’é’Ÿå½’é›¶
+ 430   3          }
+ 431   2        }
+ 432   1        if(menu==5)
+ 433   1        {
+ 434   2          if(sw2==0)
+ 435   2          {
+ 436   3            shi+=0x01;
+ 437   3            if((shi & 0x0f) >= 0x0a)shi = (shi & 0xf0) + 0x10;
+ 438   3            if(shi >= 0x24)shi = 0;
+ 439   3            while(sw2==0);
+ 440   3            miao=0;//ç§’é’Ÿå½’é›¶
+ 441   3          }
+ 442   2        }
+ 443   1        write_setting();   //æ–­ç”µä¿å­˜
+ 444   1      }
+ 445          
+ 446          void init()
+ 447          {
+ 448   1        uchar i;
+ 449   1      
+ 450   1        P2M0=0xFF;
+ 451   1        P2M1=0x00;
+ 452   1        P3M0 = 0xF0;
+ 453   1        P3M1 = 0x00;
+ 454   1        
+ 455   1        //init
+ 456   1        TMOD= 0x01;
+ 457   1        TL0 = (65536-50000)/256;        //è®¾ç½®å®šæ—¶åˆå€¼
+ 458   1        TH0 = (65536-50000)%256;        //è®¾ç½®å®šæ—¶åˆå€¼
+ 459   1        ET0 = 1;
+ 460   1        TR0 = 1;
+ 461   1        EA = 1;
+ 462   1        
+ 463   1        //InitADC
+ 464   1        P1ASF = 0x7f;                 //Open channels ADC function 0100 0000 p1.6ä½¿ç”¨ADåŠŸèƒ½
+ 465   1        ADC_RES  = 0;                       //Clear previous result
+ 466   1        ADC_LOW2 = 0;
+ 467   1        ADC_CONTR = ADC_POWER | ADC_SPEEDLL;
+ 468   1        
+ 469   1        //init_ds1302_io
+ 470   1        rst = 0;  //ç¬¬ä¸€æ¬¡è¯»å†™æ•°æ®æ—¶è¦æŠŠIOå“æ‹¿ä½
+ 471   1        clk = 0;
+ 472   1        io = 0;
+ 473   1        
+ 474   1        //init_ds1302
+ 475   1        //åˆå§‹åŒ–ds1302æ—¶é—´
+ 476   1        rst = 0;  //ç¬¬ä¸€æ¬¡è¯»å†™æ•°æ®æ—¶è¦æŠŠIOå“æ‹¿ä½
+ 477   1        clk = 0;
+ 478   1        io = 0;
+ 479   1        i = read_ds1302ram(30);   
+ 480   1        if(i != 3)
+ 481   1        {
+ 482   2          i = 3;
+ 483   2          write_ds1302ram(30,i);
+ 484   2          write_ds1302(0x8e,0x00);  //å…³é—­å†™ä¿æŠ¤
+ 485   2          for(i=0;i<3;i++)
+ 486   2            write_ds1302(write_add[i],init_ds[i]);  //æŠŠæœ€é«˜ä½å€¼0 å…è®¸ds1302å·¥ä½œ
+ 487   2          write_ds1302(0x8e,0x80);  //æ‰“å¼€å†™ä¿æŠ¤
+C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 9   
 
- 489          void main()
- 490          {
- 491   1        P2M0=0xFF;
- 492   1        P2M1=0x00;
- 493   1      
- 494   1        P3M0 = 0xF0;
- 495   1        P3M1 = 0x00;
- 496   1      
- 497   1        init();
- 498   1        
- 499   1        read_setting();
- 500   1        
- 501   1        while(1)
- 502   1        {
- 503   2          key();
- 504   2          collect_tem_and_lum();
- 505   2          //²Ëµ¥Ò»Ñ­»·ÏÔÊ¾
- 506   2          //²Ëµ¥¶şÖ»ÏÔÊ¾Ê±¼ä
- 507   2          //²Ëµ¥ÈıÖ»ÏÔÊ¾ÎÂ¶È
- 508   2          //²Ëµ¥ËÄÖ»ÏÔÊ¾¹âÇ¿¶È
- 509   2          //²Ëµ¥Îåµ÷ÕûÊ±
- 510   2          //²Ëµ¥Áùµ÷Õû·Ö
- 511   2          if(menu==0)
- 512   2          {
- 513   3            if(is_not_display_tem==1)choose_display('T');      //Ò»¶¨Ìõ¼şÏÂÏÔÊ¾ÎÂ¶È
- 514   3            else if(is_not_display_lum==1)choose_display('l'); //Ò»¶¨Ìõ¼şÏÂÏÔÊ¾·¢¹âÇ¿¶È
- 515   3            else choose_display('t'); //ÆäËûÌõ¼şÏÂÏÔÊ¾Ê±¼ä
- 516   3          }
- 517   2          if(menu==1)choose_display('t');//Ö»ÏÔÊ¾Ê±¼ä
- 518   2          if(menu==2)choose_display('T');//Ö»ÏÔÊ¾ÎÂ¶È
- 519   2          if(menu==3)choose_display('l');//Ö»ÏÔÊ¾¹âÇ¿
- 520   2          //µ÷ÕûÊ±
- 521   2          if(menu==4)
- 522   2          {
- 523   3            //ÉÁË¸
- 524   3            if(point_display>0)
- 525   3            {
- 526   4              table[2]=fen/16;
- 527   4              table[3]=fen%16;
- 528   4            }
- 529   3            else
- 530   3            {
- 531   4              table[2]=10;
- 532   4              table[3]=10;
- 533   4            }
- 534   3            table[0]=shi/16;
- 535   3            table[1]=shi%16;
- 536   3            choose_display('t');
- 537   3          }
- 538   2          //µ÷Õû·Ö
- 539   2          if(menu==5)
- 540   2          {
- 541   3            table[2]=fen/16;
- 542   3            table[3]=fen%16;
- 543   3            //ÉÁË¸
- 544   3            if(point_display>0)
- 545   3            {
- 546   4              table[0]=shi/16;
- 547   4              table[1]=shi%16;
- 548   4            }
- 549   3            else
- 550   3            {
-C51 COMPILER V9.59.0.0   MAIN                                                              12/25/2022 17:26:32 PAGE 10  
+ 488   2        }
+ 489   1      }
+ 490          
+ 491          void main()
+ 492          {
+ 493   1        init();
+ 494   1        read_setting();
+ 495   1        
+ 496   1        while(1)
+ 497   1        {
+ 498   2          key();
+ 499   2          collect_tem_and_lum();
+ 500   2          menu();
+ 501   2        }
+ 502   1      }
+ 503          
+ 504          void InitTimer1() interrupt 1  // 1æ¯«ç§’@11.0592MHz
+ 505          {
+ 506   1        TL0 = (65536-50000)/256;        //è®¾ç½®å®šæ—¶åˆå€¼
+ 507   1        TH0 = (65536-50000)%256;        //è®¾ç½®å®šæ—¶åˆå€¼
+ 508   1        
+ 509   1        two_point_flag++;
+ 510   1        cycle_display_flag++;
+ 511   1        AD_collect_flag++;
+ 512   1        
+ 513   1        //å®šæ—¶é‡‡æ ·å…‰æ•å’Œçƒ­æ•ADé‡‡æ ·flag
+ 514   1        if(AD_collect_flag>20)
+ 515   1        {
+ 516   2          AD_collect_flag=0;
+ 517   2          is_not_collect=1;
+ 518   2        }
+ 519   1        
+ 520   1        //æ—¶é’Ÿä¸­é—´ä¸¤ç‚¹é—ªçƒåŠé€‰æ‹©é—ªçƒflag
+ 521   1        if(two_point_flag==30)
+ 522   1        {
+ 523   2          two_point_flag=0;
+ 524   2          point_display=!point_display;//æ—¶é’Ÿä¸­é—´ä¸¤ç‚¹é—ªçƒåŠé€‰æ‹©é—ªçƒæ ‡å¿—ä½
+ 525   2        }
+ 526   1        
+ 527   1        //èœå•ä¸€å¾ªç¯æ˜¾ç¤ºflag
+ 528   1        if(cycle_display_flag>0 && cycle_display_flag<300)
+ 529   1        {
+ 530   2          is_not_display_tem=0;
+ 531   2          is_not_display_lum=0;
+ 532   2        }
+ 533   1        if(cycle_display_flag>300 && cycle_display_flag<500)
+ 534   1        {
+ 535   2          is_not_display_tem=1;
+ 536   2          is_not_display_lum=0;
+ 537   2        }
+ 538   1        if(cycle_display_flag>500 && cycle_display_flag<700)
+ 539   1        {
+ 540   2          is_not_display_tem=0;
+ 541   2          is_not_display_lum=1;
+ 542   2        }
+ 543   1        if(cycle_display_flag>700)
+ 544   1        {
+ 545   2          cycle_display_flag=0;//é‡æ–°å¼€å§‹
+ 546   2        }
+ 547   1      }
 
- 551   4              table[0]=10;
- 552   4              table[1]=10;
- 553   4            }
- 554   3            choose_display('t');
- 555   3          }
- 556   2        }
- 557   1      }
- 558          
- 559          void InitTimer1() interrupt 1  // 1ºÁÃë@11.0592MHz
- 560          {
- 561   1        TL0 = (65536-50000)/256;        //ÉèÖÃ¶¨Ê±³õÖµ
- 562   1        TH0 = (65536-50000)%256;        //ÉèÖÃ¶¨Ê±³õÖµ
- 563   1        
- 564   1        two_point_flag++;
- 565   1        cycle_display_flag++;
- 566   1        AD_collect_flag++;
- 567   1        
- 568   1        //¶¨Ê±²ÉÑù¹âÃôºÍÈÈÃôAD²ÉÑùflag
- 569   1        if(AD_collect_flag>20)
- 570   1        {
- 571   2          AD_collect_flag=0;
- 572   2          is_not_collect=1;
- 573   2        }
- 574   1        
- 575   1        //Ê±ÖÓÖĞ¼äÁ½µãÉÁË¸¼°Ñ¡ÔñÉÁË¸flag
- 576   1        if(two_point_flag==30)
- 577   1        {
- 578   2          two_point_flag=0;
- 579   2          point_display=!point_display;//Ê±ÖÓÖĞ¼äÁ½µãÉÁË¸¼°Ñ¡ÔñÉÁË¸±êÖ¾Î»
- 580   2        }
- 581   1        
- 582   1        //²Ëµ¥Ò»Ñ­»·ÏÔÊ¾flag
- 583   1        if(cycle_display_flag>0 && cycle_display_flag<300)
- 584   1        {
- 585   2          is_not_display_tem=0;
- 586   2          is_not_display_lum=0;
- 587   2        }
- 588   1        if(cycle_display_flag>300 && cycle_display_flag<500)
- 589   1        {
- 590   2          is_not_display_tem=1;
- 591   2          is_not_display_lum=0;
- 592   2        }
- 593   1        if(cycle_display_flag>500 && cycle_display_flag<700)
- 594   1        {
- 595   2          is_not_display_tem=0;
- 596   2          is_not_display_lum=1;
- 597   2        }
- 598   1        if(cycle_display_flag>700)
- 599   1        {
- 600   2          cycle_display_flag=0;//ÖØĞÂ¿ªÊ¼
- 601   2        }
- 602   1      }
-
-
-MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1843    ----
-   CONSTANT SIZE    =     13    ----
-   XDATA SIZE       =   ----    ----
-   PDATA SIZE       =   ----    ----
-   DATA SIZE        =     83       4
-   IDATA SIZE       =   ----    ----
-   BIT SIZE         =      2    ----
-C51 COMPILER V9.59.0.0   MAIN                                                              12/25/2022 17:26:32 PAGE 11  
-
-END OF MODULE INFORMATION.
-
-
-C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
+C51 COMPILATION COMPLETE.  0 WARNING(S),  1 ERROR(S)

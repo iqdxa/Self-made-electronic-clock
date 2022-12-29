@@ -2,8 +2,9 @@
 #include "intrins.h"
 #include <math.h>
 
-#define uchar unsigned char  		//无符号字符型 宏定义	变量范围0~255
-#define uint  unsigned int	 		//无符号整型 宏定义	变量范围0~65535
+#define uchar unsigned char		//无符号字符型 宏定义	变量范围0~255
+#define uint  unsigned int		//无符号整型 宏定义	变量范围0~65535
+
 #define ADC_POWER   0x80            //ADC电源控制位
 #define ADC_FLAG    0x10            //ADC完成标志
 #define ADC_START   0x08            //ADC起始控制位
@@ -278,7 +279,7 @@ void GetADCResult(unsigned char ch,unsigned int *value)
 	
 	*value = 0;
 	*value = ADC_RES;
-	*value = ((*value)*4 + ADC_LOW2);		//Return ADC result.×￠êíμ?′????ò·μ??8??ADC?á1?
+	*value = ((*value)*4 + ADC_LOW2);		//Return ADC result
 }
 
 void menu()
