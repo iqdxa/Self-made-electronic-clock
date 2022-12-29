@@ -264,7 +264,6 @@ uchar read_ds1302ram(uchar add)
 	return(read_ds1302(add));	
 }
 
-
 void GetADCResult(unsigned char ch,unsigned int *value)
 {
 	ADC_CONTR = ADC_POWER | ADC_SPEEDLL | ch | ADC_START;
