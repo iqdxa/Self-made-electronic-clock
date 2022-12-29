@@ -336,6 +336,7 @@ void menu()
 		choose_display('s');
 	}
 }
+
 //收集温度和光强度
 void collect_tem_and_lum()
 {
