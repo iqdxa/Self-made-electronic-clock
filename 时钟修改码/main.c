@@ -47,6 +47,7 @@ uchar point_display=0;
 uint tem=0,lum=0;
 uint ld;
 uint fen,shi,miao,ri,yue,week,nian=0x20;
+uint display_min_sec=0;//显示分和秒
 uint display_tem=0;
 uint display_lum=0;
 uint collect=0;
@@ -345,11 +346,12 @@ void display_menu()
 	//菜单六调整分
 	if(menu==0)
 	{
-		if(display_tem==1)choose_display("tem");				//一定条件下显示温度
+		if(display_min_sec==1)choose_display("t_fen_miao");			//显示分和秒
+		else if(display_tem==1)choose_display("tem");			//一定条件下显示温度
 		else if(display_lum==1)choose_display("lum");			//一定条件下显示发光强度
 		else choose_display("t_shi_fen"); 						//其他条件下显示时和分
 	}
-	if(menu==1)choose_display("t_fen_miao");					//只显示分和秒
+	if(menu==1)choose_display("t_fen_miao");					//显示分和秒
 	if(menu==2)choose_display("tem");							//只显示温度
 	if(menu==3)choose_display("lum");							//只显示光强
 	//调整时
@@ -530,23 +532,32 @@ void InitTimer1() interrupt 1	//1毫秒@11.0592MHz
 		point_display=!point_display;//时钟中间两点闪烁及选择闪烁标志位
 	}
 	
-	//菜单一循环显示flag
-	if(cycle_display_flag>0 && cycle_display_flag<300)
+	//菜单一循环显示
+	if(cycle_display_flag>=0 && cycle_display_flag<300)
 	{
+		display_min_sec=0;
 		display_tem=0;
 		display_lum=0;
 	}
-	if(cycle_display_flag>300 && cycle_display_flag<500)
+	if(cycle_display_flag>=300 && cycle_display_flag<600)
 	{
+		display_min_sec=1;
+		display_tem=0;
+		display_lum=0;
+	}
+	if(cycle_display_flag>=600 && cycle_display_flag<800)
+	{
+		display_min_sec=0;
 		display_tem=1;
 		display_lum=0;
 	}
-	if(cycle_display_flag>500 && cycle_display_flag<700)
+	if(cycle_display_flag>=800 && cycle_display_flag<1000)
 	{
+		display_min_sec=0;
 		display_tem=0;
 		display_lum=1;
 	}
-	if(cycle_display_flag>700)
+	if(cycle_display_flag>=1000)
 	{
 		cycle_display_flag=0;//重新开始
 	}
