@@ -275,9 +275,9 @@ void GetADCResult(unsigned char ch,unsigned int *value)
 	*value = ((*value)*4 + ADC_LOW2);		//Return ADC result
 }
 
-void choose_display(uchar choose)
+void choose_display(uchar choose[])
 {
-	if(choose == 't')
+	if(choose == "t_shi_fen")
 	{
 		read_time();
 		table[0]=shi/16;
@@ -287,7 +287,17 @@ void choose_display(uchar choose)
 		display(1,1);
 		Delayms(ld);
 	}
-	else if(choose == 'T')
+	else if(choose == "t_fen_miao")
+	{
+		read_time();
+		table[0]=fen/16;
+		table[1]=fen%16;
+		table[2]=miao/16;
+		table[3]=miao%16;
+		display(1,1);
+		Delayms(ld);
+	}
+	else if(choose == "tem")
 	{
 		if(tem>=10)
 		{
@@ -306,7 +316,7 @@ void choose_display(uchar choose)
 		display(1,0);
 		Delayms(ld);
 	}
-	else if(choose == 'l')
+	else if(choose == "lum")
 	{
 		table[0]=lum/1000;
 		table[1]=lum%1000/100;
@@ -316,7 +326,7 @@ void choose_display(uchar choose)
 		Delayms(ld);
 	}
 	//菜单四和五设置时间的显示
-	else if(choose == 's')
+	else if(choose == "setting")
 	{
 		display(1,1);
 		Delayms(ld);
@@ -333,13 +343,13 @@ void display_menu()
 	//菜单六调整分
 	if(menu==0)
 	{
-		if(display_tem==1)choose_display('T');				//一定条件下显示温度
-		else if(display_lum==1)choose_display('l');			//一定条件下显示发光强度
-		else choose_display('t'); 							//其他条件下显示时间
+		if(display_tem==1)choose_display("tem");				//一定条件下显示温度
+		else if(display_lum==1)choose_display("lum");			//一定条件下显示发光强度
+		else choose_display("t_shi_fen"); 							//其他条件下显示时和分
 	}
-	if(menu==1)choose_display('t');							//只显示时间
-	if(menu==2)choose_display('T');							//只显示温度
-	if(menu==3)choose_display('l');							//只显示光强
+	if(menu==1)choose_display("t_fen_miao");							//只显示分和秒
+	if(menu==2)choose_display("tem");							//只显示温度
+	if(menu==3)choose_display("lum");							//只显示光强
 	//调整时
 	if(menu==4)
 	{
@@ -356,7 +366,7 @@ void display_menu()
 		}
 		table[0]=shi/16;
 		table[1]=shi%16;
-		choose_display('s');
+		choose_display("setting");
 	}
 	//调整分
 	if(menu==5)
@@ -374,7 +384,7 @@ void display_menu()
 			table[0]=10;
 			table[1]=10;
 		}
-		choose_display('s');
+		choose_display("setting");
 	}
 }
 
@@ -452,7 +462,7 @@ void init()
 	TH0 = (65536-50000)%256;		//设置定时初值
 	ET0 = 1;
 	TR0 = 1;
-	EA = 1;
+	EA  = 1;
 	
 	//InitADC
 	P1ASF = 0x7f;					//Open channels ADC function 0100 0000 p1.6使用AD功能
