@@ -42,7 +42,7 @@ uchar Differ_Time=0;//不同数字所需要延时时间
 uchar table[4]={0};
 uchar nk=0;
 uchar gk=0;
-uchar menu;
+uchar menu=0;
 uchar i=0;
 uchar point_display=0;
 
@@ -280,7 +280,55 @@ void GetADCResult(unsigned char ch,unsigned int *value)
 	*value = ((*value)*4 + ADC_LOW2);		//Return ADC result
 }
 
-void menu()
+void choose_display(uchar choose)
+{
+	if(choose == 't')
+	{
+		read_time();
+		table[0]=shi/16;
+		table[1]=shi%16;
+		table[2]=fen/16;
+		table[3]=fen%16;
+		display(1,1);
+		Delayms(ld);
+	}
+	else if(choose == 'T')
+	{
+		if(tem>=10)
+		{
+			table[0]=tem/1000;
+			table[1]=tem%1000/100;
+			table[2]=tem%1000%100/10;
+			table[3]=11;
+		}
+		else if(tem<10)
+		{
+			table[0]=tem%1000/100;
+			table[1]=tem%1000%100/10;
+			table[2]=tem%1000%100%10;
+			table[3]=11;
+		}
+		display(1,0);
+		Delayms(ld);
+	}
+	else if(choose == 'l')
+	{
+		table[0]=lum/1000;
+		table[1]=lum%1000/100;
+		table[2]=lum%1000%100/10;
+		table[3]=lum%1000%100%10;
+		display(3,0);
+		Delayms(ld);
+	}
+	//菜单四和五设置时间的显示
+	else if(choose == 's')
+	{
+		display(1,1);
+		Delayms(ld);
+	}
+}
+
+void display_menu()
 {
 	//菜单一循环显示
 	//菜单二只显示时间
@@ -348,54 +396,6 @@ void collect_tem_and_lum()
 	}
 	//光控制显示亮度
 	ld=(lum/50)*5;
-}
-
-void choose_display(uchar choose)
-{
-	if(choose == 't')
-	{
-		read_time();
-		table[0]=shi/16;
-		table[1]=shi%16;
-		table[2]=fen/16;
-		table[3]=fen%16;
-		display(1,1);
-		Delayms(ld);
-	}
-	else if(choose == 'T')
-	{
-		if(tem>=10)
-		{
-			table[0]=tem/1000;
-			table[1]=tem%1000/100;
-			table[2]=tem%1000%100/10;
-			table[3]=11;
-		}
-		else if(tem<10)
-		{
-			table[0]=tem%1000/100;
-			table[1]=tem%1000%100/10;
-			table[2]=tem%1000%100%10;
-			table[3]=11;
-		}
-		display(1,0);
-		Delayms(ld);
-	}
-	else if(choose == 'l')
-	{
-		table[0]=lum/1000;
-		table[1]=lum%1000/100;
-		table[2]=lum%1000%100/10;
-		table[3]=lum%1000%100%10;
-		display(3,0);
-		Delayms(ld);
-	}
-	//菜单四和五设置时间的显示
-	else if(choose == 's')
-	{
-		display(1,1);
-		Delayms(ld);
-	}
 }
 
 void key()
@@ -496,7 +496,7 @@ void main()
 	{
 		key();
 		collect_tem_and_lum();
-		menu();
+		display_menu();
 	}
 }
 
