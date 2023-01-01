@@ -32,8 +32,8 @@ sbit sw2=P3^1;
 
 //						秒		分	时	日		月	年	星期
 uchar code init_ds[]  ={0x00,0x00,0x00,0x01,0x01,0x00,0x13}; 
-uchar code write_add[]={0x80,0x82,0x84};   //写地址,0x86,0x88,0x8c,0x8a
-uchar code read_add[] ={0x81,0x83,0x85};   //读地址,0x87,0x89,0x8d,0x8b 
+uchar code write_add[]={0x80,0x82,0x84,0x86,0x88,0x8c,0x8a};   //写地址
+uchar code read_add[] ={0x81,0x83,0x85,0x87,0x89,0x8d,0x8b};   //读地址 
 uchar dat1[]={0xC0,0xF9,0xA4,0xB0,0x99,0x92,0x82,0xf8,0X80,0X90,0xff,0xc6};//正立无小数点
 uchar dat2[]={0x40,0x79,0x24,0x30,0x19,0x12,0x02,0x78,0X00,0X10,0xff};//正立有小数点
 uchar dat3[]={0x40,0x4F,0x24,0x06,0x0B,0x12,0x10,0x47,0X00,0X02,0xff};//倒立有小数点
@@ -51,7 +51,7 @@ uint ld;
 uint fen;
 uint shi;
 uint miao;
-uint fen,shi,miao;//,ri,yue,week,nian=0x20;
+uint fen,shi,miao,ri,yue,week,nian=0x20;
 uint is_not_display_tem=0;
 uint is_not_display_lum=0;
 uint is_not_collect=0;
@@ -174,7 +174,7 @@ void write_ds1302(uchar add,uchar dat)
 	io = 0;
 }
 
-/*************从对应的地址读一个数据出来***************/
+//从对应的地址读一个数据出来
 uchar read_ds1302(uchar add)
 {
 	uchar value,i;
@@ -200,30 +200,28 @@ uchar read_ds1302(uchar add)
 	return value;		 //返回读出来的数据
 }
 
-/*************把要的时间 年月日 都读出来***************/
 void read_time()
 {
-//	miao = read_ds1302(read_add[0]);	//读秒
-	fen  = read_ds1302(0x83);			//读分
-	shi  = read_ds1302(0x85);			//读时
-//	ri   = read_ds1302(read_add[3]);	//读日
-//	yue  = read_ds1302(read_add[4]);	//读月
-//	nian = read_ds1302(read_add[5]);	//读年
-//	week = read_ds1302(read_add[6]);	//读星期
+	miao = read_ds1302(read_add[0]);	//读秒
+	fen  = read_ds1302(read_add[1]);	//读分
+	shi  = read_ds1302(read_add[2]);	//读时
+	ri   = read_ds1302(read_add[3]);	//读日
+	yue  = read_ds1302(read_add[4]);	//读月
+	nian = read_ds1302(read_add[5]);	//读年
+	week = read_ds1302(read_add[6]);	//读星期
 }
 
 /*************把要写的时间 年月日 都写入ds1302里***************/
 void write_time()
 {
 	write_ds1302(0x8e,0x00);			//关闭写保护
-//	write_ds1302(write_add[0],miao);	//写秒
-	write_ds1302(0x80,miao);			//写秒
-	write_ds1302(0x82,fen);				//写分
-	write_ds1302(0x84,shi);				//写时
-//	write_ds1302(write_add[3],ri);		//写日
-//	write_ds1302(write_add[4],yue);		//写月
-//	write_ds1302(write_add[5],nian);	//写年
-//	write_ds1302(write_add[6],week);	//写星期
+	write_ds1302(write_add[0],miao);	//写秒
+	write_ds1302(write_add[1],fen);		//写分
+	write_ds1302(write_add[2],shi);		//写时
+	write_ds1302(write_add[3],ri);		//写日
+	write_ds1302(write_add[4],yue);		//写月
+	write_ds1302(write_add[5],nian);	//写年
+	write_ds1302(write_add[6],week);	//写星期
 	write_ds1302(0x8e,0x80);			//打开写保护
 }
 
@@ -262,7 +260,7 @@ uchar read_ds1302ram(uchar add)
 	add <<= 1;     //地址是从第二位开始的
 	add |= 0x01;   //把最高位置1  是读命令
 	add |= 0xc0;   //地址最高两位为 1  
-	return(read_ds1302(add));	
+	return(read_ds1302(add));
 }
 
 void GetADCResult(unsigned char ch,unsigned int *value)

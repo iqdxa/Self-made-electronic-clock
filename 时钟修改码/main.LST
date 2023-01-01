@@ -1,9 +1,9 @@
-C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 1   
+C51 COMPILER V9.59.0.0   MAIN                                                              01/01/2023 10:12:08 PAGE 1   
 
 
 C51 COMPILER V9.59.0.0, COMPILATION OF MODULE MAIN
 OBJECT MODULE PLACED IN main.OBJ
-COMPILER INVOKED BY: C:\Program Files\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(9,SPEED) BROWSE DEBUG OBJECTEXTEND TABS(2)
+COMPILER INVOKED BY: C:\Program Files\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(9,SPEED) BROWSE DEBUG OBJECTEXTEND
 
 line level    source
 
@@ -11,8 +11,8 @@ line level    source
    2          #include "intrins.h"
    3          #include <math.h>
    4          
-   5          #define uchar unsigned char   //无符号字符型 宏定义  变量范围0~255
-   6          #define uint  unsigned int    //无符号整型 宏定义 变量范围0~65535
+   5          #define uchar unsigned char             //无符号字符型 宏定义  变量范围0~255
+   6          #define uint  unsigned int              //无符号整型 宏定义     变量范围0~65535
    7          
    8          #define ADC_POWER   0x80            //ADC电源控制位
    9          #define ADC_FLAG    0x10            //ADC完成标志
@@ -27,11 +27,11 @@ line level    source
   18          bit nx;
   19          bit sw;
   20          bit nx=0;
-  21          bit sw=0;       //温度时间切换
+  21          bit sw=0;                               //温度时间切换
   22          
-  23          sbit clk = P3^2;      //ds1302时钟线定义
-  24          sbit io =  P5^5;      //数据线
-  25          sbit rst = P5^4;      //复位线
+  23          sbit clk = P3^2;                //ds1302时钟线定义
+  24          sbit io =  P5^5;                //数据线
+  25          sbit rst = P5^4;                //复位线
   26          sbit DS4=P3^4;
   27          sbit DS3=P3^5;
   28          sbit DS2=P3^6;
@@ -39,10 +39,10 @@ line level    source
   30          sbit sw1=P3^0;
   31          sbit sw2=P3^1;
   32          
-  33          //            秒   分 时 日   月 年 星期
+  33          //                                              秒             分     时     日             月     年     星期
   34          uchar code init_ds[]  ={0x00,0x00,0x00,0x01,0x01,0x00,0x13}; 
-  35          uchar code write_add[]={0x80,0x82,0x84};   //写地址,0x86,0x88,0x8c,0x8a
-  36          uchar code read_add[] ={0x81,0x83,0x85};   //读地址,0x87,0x89,0x8d,0x8b 
+  35          uchar code write_add[]={0x80,0x82,0x84,0x86,0x88,0x8c,0x8a};   //写地址
+  36          uchar code read_add[] ={0x81,0x83,0x85,0x87,0x89,0x8d,0x8b};   //读地址 
   37          uchar dat1[]={0xC0,0xF9,0xA4,0xB0,0x99,0x92,0x82,0xf8,0X80,0X90,0xff,0xc6};//正立无小数点
   38          uchar dat2[]={0x40,0x79,0x24,0x30,0x19,0x12,0x02,0x78,0X00,0X10,0xff};//正立有小数点
   39          uchar dat3[]={0x40,0x4F,0x24,0x06,0x0B,0x12,0x10,0x47,0X00,0X02,0xff};//倒立有小数点
@@ -60,9 +60,9 @@ line level    source
   51          uint fen;
   52          uint shi;
   53          uint miao;
-  54          uint fen,shi,miao;//,ri,yue,week,nian=0x20;
+  54          uint fen,shi,miao,ri,yue,week,nian=0x20;
   55          uint is_not_display_tem=0;
-C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 2   
+C51 COMPILER V9.59.0.0   MAIN                                                              01/01/2023 10:12:08 PAGE 2   
 
   56          uint is_not_display_lum=0;
   57          uint is_not_collect=0;
@@ -72,505 +72,504 @@ line level    source
   61          
   62          void Delayms(uint t)
   63          {
-  64   1        uchar i;
-  65   1        while(t--)for(i=0;i<123;i++);
+  64   1              uchar i;
+  65   1              while(t--)for(i=0;i<123;i++);
   66   1      }
   67          
   68          void Delay_select(uchar i)
   69          {
-  70   1        switch(i)
-  71   1        {
-  72   2          case 0:Differ_Time=5;break;
-  73   2          case 1:Differ_Time=2;break;
-  74   2          case 2:Differ_Time=5;break;
-  75   2          case 3:Differ_Time=5;break;
-  76   2          case 4:Differ_Time=4;break;
-  77   2          case 5:Differ_Time=5;break;
-  78   2          case 6:Differ_Time=5;break;
-  79   2          case 7:Differ_Time=3;break;
-  80   2          case 8:Differ_Time=5;break;
-  81   2          case 9:Differ_Time=5;break;
-  82   2          default:break;
-  83   2        }
+  70   1              switch(i)
+  71   1              {
+  72   2                      case 0:Differ_Time=5;break;
+  73   2                      case 1:Differ_Time=2;break;
+  74   2                      case 2:Differ_Time=5;break;
+  75   2                      case 3:Differ_Time=5;break;
+  76   2                      case 4:Differ_Time=4;break;
+  77   2                      case 5:Differ_Time=5;break;
+  78   2                      case 6:Differ_Time=5;break;
+  79   2                      case 7:Differ_Time=3;break;
+  80   2                      case 8:Differ_Time=5;break;
+  81   2                      case 9:Differ_Time=5;break;
+  82   2                      default:break;
+  83   2              }
   84   1      }
   85          
   86          //local小数点位置,is_not_time是否是显示时间的格式
   87          void display(uint local,uint is_not_time)
   88          {
-  89   1        P2=0XFF;
-  90   1        DS1=1;
-  91   1        DS2=0;
-  92   1        DS3=0;
-  93   1        DS4=0;
-  94   1        if(local==0)P2=dat2[table[0]];
-  95   1        else P2=dat1[table[0]];
-  96   1        Delay_select(table[0]);
-  97   1        Delayms(Differ_Time);
+  89   1              P2=0XFF;
+  90   1              DS1=1;
+  91   1              DS2=0;
+  92   1              DS3=0;
+  93   1              DS4=0;
+  94   1              if(local==0)P2=dat2[table[0]];
+  95   1              else P2=dat1[table[0]];
+  96   1              Delay_select(table[0]);
+  97   1              Delayms(Differ_Time);
   98   1      
-  99   1        P2=0XFF;
- 100   1        DS1=0;
- 101   1        DS2=1;
- 102   1        DS3=0;
- 103   1        DS4=0;
- 104   1        if(is_not_time==1)
- 105   1        {
- 106   2          if(point_display==1)P2=dat2[table[1]];
- 107   2          else if(point_display==0)P2=dat1[table[1]];
- 108   2        }
- 109   1        else if(is_not_time==0)
- 110   1        {
- 111   2          if(local==1)P2=dat2[table[1]];
- 112   2          else P2=dat1[table[1]];
- 113   2        }
- 114   1        Delay_select(table[1]);
- 115   1        Delayms(Differ_Time);
+  99   1              P2=0XFF;
+ 100   1              DS1=0;
+ 101   1              DS2=1;
+ 102   1              DS3=0;
+ 103   1              DS4=0;
+ 104   1              if(is_not_time==1)
+ 105   1              {
+ 106   2                      if(point_display==1)P2=dat2[table[1]];
+ 107   2                      else if(point_display==0)P2=dat1[table[1]];
+ 108   2              }
+ 109   1              else if(is_not_time==0)
+ 110   1              {
+ 111   2                      if(local==1)P2=dat2[table[1]];
+ 112   2                      else P2=dat1[table[1]];
+ 113   2              }
+ 114   1              Delay_select(table[1]);
+ 115   1              Delayms(Differ_Time);
  116   1      
- 117   1        P2=0XFF;
-C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 3   
+ 117   1              P2=0XFF;
+C51 COMPILER V9.59.0.0   MAIN                                                              01/01/2023 10:12:08 PAGE 3   
 
- 118   1        DS1=0;
- 119   1        DS2=0;
- 120   1        DS3=1;
- 121   1        DS4=0;
- 122   1        //如果是显示时间，则第三个数码管一定要显示小数点，且小数点闪烁
- 123   1        //如果不是显示时间，则根据需求显示
- 124   1        if(is_not_time==1)
- 125   1        {
- 126   2          if(point_display==1)P2=dat3[table[2]];
- 127   2          else if(point_display==0)P2=dat4[table[2]];
- 128   2        }
- 129   1        else if(is_not_time==0)
- 130   1        {
- 131   2          if(local==2)P2=dat3[table[2]];
- 132   2          else P2=dat4[table[2]];
- 133   2        }
- 134   1        Delay_select(table[2]);
- 135   1        Delayms(Differ_Time);
+ 118   1              DS1=0;
+ 119   1              DS2=0;
+ 120   1              DS3=1;
+ 121   1              DS4=0;
+ 122   1              //如果是显示时间，则第三个数码管一定要显示小数点，且小数点闪烁
+ 123   1              //如果不是显示时间，则根据需求显示
+ 124   1              if(is_not_time==1)
+ 125   1              {
+ 126   2                      if(point_display==1)P2=dat3[table[2]];
+ 127   2                      else if(point_display==0)P2=dat4[table[2]];
+ 128   2              }
+ 129   1              else if(is_not_time==0)
+ 130   1              {
+ 131   2                      if(local==2)P2=dat3[table[2]];
+ 132   2                      else P2=dat4[table[2]];
+ 133   2              }
+ 134   1              Delay_select(table[2]);
+ 135   1              Delayms(Differ_Time);
  136   1      
- 137   1        P2=0XFF;
- 138   1        DS1=0;
- 139   1        DS2=0;
- 140   1        DS3=0;
- 141   1        DS4=1;
- 142   1        if(local==3)P2=dat2[table[3]];
- 143   1        else P2=dat1[table[3]];
- 144   1        Delay_select(table[3]);
- 145   1        Delayms(Differ_Time);
+ 137   1              P2=0XFF;
+ 138   1              DS1=0;
+ 139   1              DS2=0;
+ 140   1              DS3=0;
+ 141   1              DS4=1;
+ 142   1              if(local==3)P2=dat2[table[3]];
+ 143   1              else P2=dat1[table[3]];
+ 144   1              Delay_select(table[3]);
+ 145   1              Delayms(Differ_Time);
  146   1      
- 147   1        DS1=0;
- 148   1        DS2=0;
- 149   1        DS3=0;
- 150   1        DS4=0;
+ 147   1              DS1=0;
+ 148   1              DS2=0;
+ 149   1              DS3=0;
+ 150   1              DS4=0;
  151   1      }
  152          
  153          /*************写一个数据到对应的地址里***************/
  154          void write_ds1302(uchar add,uchar dat)
  155          {
- 156   1        uchar i;
- 157   1        rst = 1;       //把复位线拿高
- 158   1        for(i=0;i<8;i++)
- 159   1        {            //低位在前
- 160   2          clk = 0;     //时钟线拿低开始写数据
- 161   2          io = add & 0x01;
- 162   2          add >>= 1;     //把地址右移一位
- 163   2          clk = 1;     //时钟线拿高
- 164   2        } 
- 165   1        for(i=0;i<8;i++)
- 166   1        {
- 167   2          clk = 0;     //时钟线拿低开始写数据
- 168   2          io = dat & 0x01;
- 169   2          dat >>= 1;     //把数据右移一位
- 170   2          clk = 1;     //时钟线拿高
- 171   2        }
- 172   1        rst = 0;       //复位线合低
- 173   1        clk = 0;
- 174   1        io = 0;
+ 156   1              uchar i;
+ 157   1              rst = 1;                         //把复位线拿高
+ 158   1              for(i=0;i<8;i++)
+ 159   1              {                                    //低位在前
+ 160   2                      clk = 0;                 //时钟线拿低开始写数据
+ 161   2                      io = add & 0x01;
+ 162   2                      add >>= 1;               //把地址右移一位
+ 163   2                      clk = 1;                 //时钟线拿高
+ 164   2              }       
+ 165   1              for(i=0;i<8;i++)
+ 166   1              {
+ 167   2                      clk = 0;                 //时钟线拿低开始写数据
+ 168   2                      io = dat & 0x01;
+ 169   2                      dat >>= 1;               //把数据右移一位
+ 170   2                      clk = 1;                 //时钟线拿高
+ 171   2              }
+ 172   1              rst = 0;                         //复位线合低
+ 173   1              clk = 0;
+ 174   1              io = 0;
  175   1      }
  176          
- 177          /*************从对应的地址读一个数据出来***************/
+ 177          //从对应的地址读一个数据出来
  178          uchar read_ds1302(uchar add)
  179          {
-C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 4   
+C51 COMPILER V9.59.0.0   MAIN                                                              01/01/2023 10:12:08 PAGE 4   
 
- 180   1        uchar value,i;
- 181   1        rst = 1;       //把复位线拿高
- 182   1        for(i=0;i<8;i++)
- 183   1        {            //低位在前
- 184   2          clk = 0;     //时钟线拿低开始写数据
- 185   2          io = add & 0x01;      
- 186   2          add >>= 1;     //把地址右移一位
- 187   2          clk = 1;     //时钟线拿高
- 188   2        }   
- 189   1        for(i=0;i<8;i++)
- 190   1        {
- 191   2          clk = 0;     //时钟线拿低开始读数据
- 192   2          value >>= 1;
- 193   2          if(io == 1)
- 194   2            value |= 0x80;
- 195   2          clk = 1;     //时钟线拿高
- 196   2        }
- 197   1        rst = 0;       //复位线合低
- 198   1        clk = 0;
- 199   1        io = 0;
- 200   1        return value;    //返回读出来的数据
+ 180   1              uchar value,i;
+ 181   1              rst = 1;                         //把复位线拿高
+ 182   1              for(i=0;i<8;i++)
+ 183   1              {                                    //低位在前
+ 184   2                      clk = 0;                 //时钟线拿低开始写数据
+ 185   2                      io = add & 0x01;        
+ 186   2                      add >>= 1;               //把地址右移一位
+ 187   2                      clk = 1;                 //时钟线拿高
+ 188   2              }               
+ 189   1              for(i=0;i<8;i++)
+ 190   1              {
+ 191   2                      clk = 0;                 //时钟线拿低开始读数据
+ 192   2                      value >>= 1;
+ 193   2                      if(io == 1)
+ 194   2                              value |= 0x80;
+ 195   2                      clk = 1;                 //时钟线拿高
+ 196   2              }
+ 197   1              rst = 0;                         //复位线合低
+ 198   1              clk = 0;
+ 199   1              io = 0;
+ 200   1              return value;            //返回读出来的数据
  201   1      }
  202          
- 203          /*************把要的时间 年月日 都读出来***************/
- 204          void read_time()
- 205          {
- 206   1      //  miao = read_ds1302(read_add[0]);  //读秒
- 207   1        fen  = read_ds1302(0x83);     //读分
- 208   1        shi  = read_ds1302(0x85);     //读时
- 209   1      //  ri   = read_ds1302(read_add[3]);  //读日
- 210   1      //  yue  = read_ds1302(read_add[4]);  //读月
- 211   1      //  nian = read_ds1302(read_add[5]);  //读年
- 212   1      //  week = read_ds1302(read_add[6]);  //读星期
- 213   1      }
- 214          
- 215          /*************把要写的时间 年月日 都写入ds1302里***************/
- 216          void write_time()
- 217          {
- 218   1        write_ds1302(0x8e,0x00);      //关闭写保护
- 219   1      //  write_ds1302(write_add[0],miao);  //写秒
- 220   1        write_ds1302(0x80,miao);      //写秒
- 221   1        write_ds1302(0x82,fen);       //写分
- 222   1        write_ds1302(0x84,shi);       //写时
- 223   1      //  write_ds1302(write_add[3],ri);    //写日
- 224   1      //  write_ds1302(write_add[4],yue);   //写月
- 225   1      //  write_ds1302(write_add[5],nian);  //写年
- 226   1      //  write_ds1302(write_add[6],week);  //写星期
- 227   1        write_ds1302(0x8e,0x80);      //打开写保护
- 228   1      }
- 229          
- 230          void write_setting()
- 231          {
- 232   1        write_ds1302(0x8e,0x00);
- 233   1        write_ds1302(0xcc,sw);
- 234   1        write_ds1302(0xca,nx);
- 235   1        write_ds1302(0xc8,gk);
- 236   1        write_ds1302(0xc6,nk);
- 237   1        write_ds1302(0x8e,0x80);
- 238   1      }
- 239          
- 240          void read_setting()
- 241          {
-C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 5   
+ 203          void read_time()
+ 204          {
+ 205   1              miao = read_ds1302(read_add[0]);        //读秒
+ 206   1              fen  = read_ds1302(read_add[1]);        //读分
+ 207   1              shi  = read_ds1302(read_add[2]);        //读时
+ 208   1              ri   = read_ds1302(read_add[3]);        //读日
+ 209   1              yue  = read_ds1302(read_add[4]);        //读月
+ 210   1              nian = read_ds1302(read_add[5]);        //读年
+ 211   1              week = read_ds1302(read_add[6]);        //读星期
+ 212   1      }
+ 213          
+ 214          /*************把要写的时间 年月日 都写入ds1302里***************/
+ 215          void write_time()
+ 216          {
+ 217   1              write_ds1302(0x8e,0x00);                        //关闭写保护
+ 218   1              write_ds1302(write_add[0],miao);        //写秒
+ 219   1              write_ds1302(write_add[1],fen);         //写分
+ 220   1              write_ds1302(write_add[2],shi);         //写时
+ 221   1              write_ds1302(write_add[3],ri);          //写日
+ 222   1              write_ds1302(write_add[4],yue);         //写月
+ 223   1              write_ds1302(write_add[5],nian);        //写年
+ 224   1              write_ds1302(write_add[6],week);        //写星期
+ 225   1              write_ds1302(0x8e,0x80);                        //打开写保护
+ 226   1      }
+ 227          
+ 228          void write_setting()
+ 229          {
+ 230   1              write_ds1302(0x8e,0x00);
+ 231   1              write_ds1302(0xcc,sw);
+ 232   1              write_ds1302(0xca,nx);
+ 233   1              write_ds1302(0xc8,gk);
+ 234   1              write_ds1302(0xc6,nk);
+ 235   1              write_ds1302(0x8e,0x80);
+ 236   1      }
+ 237          
+ 238          void read_setting()
+ 239          {
+ 240   1              nk = read_ds1302(0xc7);                                 //1100 0111 读取Ram3
+ 241   1              gk = read_ds1302(0xc9);                                 //1100 1001 读取Ram4
+C51 COMPILER V9.59.0.0   MAIN                                                              01/01/2023 10:12:08 PAGE 5   
 
- 242   1        nk = read_ds1302(0xc7);         //1100 0111 读取Ram3
- 243   1        gk = read_ds1302(0xc9);         //1100 1001 读取Ram4
- 244   1        nx = read_ds1302(0xcb);
- 245   1        sw = read_ds1302(0xcd);
- 246   1      }
- 247          
- 248          //把数据保存到ds1302 RAM中**0-31
- 249          void write_ds1302ram(uchar add,uchar dat)
- 250          {
- 251   1        add <<= 1;     //地址是从第二位开始的
- 252   1        add &= 0xfe;   //把最低位清零  是写的命令
- 253   1        add |= 0xc0;   //地址最高两位为 1  
- 254   1        write_ds1302(0x8e,0x00);
- 255   1        write_ds1302(add,dat);  
- 256   1        write_ds1302(0x8e,0x80);
- 257   1      }
- 258          
- 259          //把数据从ds1302 RAM读出来**0-31
- 260          uchar read_ds1302ram(uchar add)
- 261          {
- 262   1        add <<= 1;     //地址是从第二位开始的
- 263   1        add |= 0x01;   //把最高位置1  是读命令
- 264   1        add |= 0xc0;   //地址最高两位为 1  
- 265   1        return(read_ds1302(add)); 
- 266   1      }
- 267          
- 268          void GetADCResult(unsigned char ch,unsigned int *value)
- 269          {
- 270   1        ADC_CONTR = ADC_POWER | ADC_SPEEDLL | ch | ADC_START;
- 271   1        _nop_();                            //Must wait before inquiry
- 272   1        _nop_();
- 273   1        _nop_();
- 274   1        _nop_();
- 275   1        _nop_();                            //Must wait before inquiry
- 276   1        _nop_();
- 277   1        while(!(ADC_CONTR & ADC_FLAG));     //Wait complete flag
- 278   1        ADC_CONTR &= ~ADC_FLAG;             //Close ADC
- 279   1        
- 280   1        *value = 0;
- 281   1        *value = ADC_RES;
- 282   1        *value = ((*value)*4 + ADC_LOW2);   //Return ADC result
- 283   1      }
- 284          
- 285          void menu()
- 286          {
-*** ERROR C231 IN LINE 286 OF main.c: 'menu': redefinition
- 287   1        //菜单一循环显示
- 288   1        //菜单二只显示时间
- 289   1        //菜单三只显示温度
- 290   1        //菜单四只显示光强度
- 291   1        //菜单五调整时
- 292   1        //菜单六调整分
- 293   1        if(menu==0)
- 294   1        {
- 295   2          if(is_not_display_tem==1)choose_display('T');       //一定条件下显示温度
- 296   2          else if(is_not_display_lum==1)choose_display('l');  //一定条件下显示发光强度
- 297   2          else choose_display('t');               //其他条件下显示时间
- 298   2        }
- 299   1        if(menu==1)choose_display('t');             //只显示时间
- 300   1        if(menu==2)choose_display('T');             //只显示温度
- 301   1        if(menu==3)choose_display('l');             //只显示光强
- 302   1        //调整时
-C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 6   
+ 242   1              nx = read_ds1302(0xcb);
+ 243   1              sw = read_ds1302(0xcd);
+ 244   1      }
+ 245          
+ 246          //把数据保存到ds1302 RAM中**0-31
+ 247          void write_ds1302ram(uchar add,uchar dat)
+ 248          {
+ 249   1              add <<= 1;     //地址是从第二位开始的
+ 250   1              add &= 0xfe;   //把最低位清零  是写的命令
+ 251   1              add |= 0xc0;   //地址最高两位为 1  
+ 252   1              write_ds1302(0x8e,0x00);
+ 253   1              write_ds1302(add,dat);  
+ 254   1              write_ds1302(0x8e,0x80);
+ 255   1      }
+ 256          
+ 257          //把数据从ds1302 RAM读出来**0-31
+ 258          uchar read_ds1302ram(uchar add)
+ 259          {
+ 260   1              add <<= 1;     //地址是从第二位开始的
+ 261   1              add |= 0x01;   //把最高位置1  是读命令
+ 262   1              add |= 0xc0;   //地址最高两位为 1  
+ 263   1              return(read_ds1302(add));
+ 264   1      }
+ 265          
+ 266          void GetADCResult(unsigned char ch,unsigned int *value)
+ 267          {
+ 268   1              ADC_CONTR = ADC_POWER | ADC_SPEEDLL | ch | ADC_START;
+ 269   1              _nop_();                                        //Must wait before inquiry
+ 270   1              _nop_();
+ 271   1              _nop_();
+ 272   1              _nop_();
+ 273   1              _nop_();                                        //Must wait before inquiry
+ 274   1              _nop_();
+ 275   1              while(!(ADC_CONTR & ADC_FLAG));                 //Wait complete flag
+ 276   1              ADC_CONTR &= ~ADC_FLAG;                         //Close ADC
+ 277   1              
+ 278   1              *value = 0;
+ 279   1              *value = ADC_RES;
+ 280   1              *value = ((*value)*4 + ADC_LOW2);               //Return ADC result
+ 281   1      }
+ 282          
+ 283          void menu()
+ 284          {
+*** ERROR C231 IN LINE 284 OF main.c: 'menu': redefinition
+ 285   1              //菜单一循环显示
+ 286   1              //菜单二只显示时间
+ 287   1              //菜单三只显示温度
+ 288   1              //菜单四只显示光强度
+ 289   1              //菜单五调整时
+ 290   1              //菜单六调整分
+ 291   1              if(menu==0)
+ 292   1              {
+ 293   2                      if(is_not_display_tem==1)choose_display('T');           //一定条件下显示温度
+ 294   2                      else if(is_not_display_lum==1)choose_display('l');      //一定条件下显示发光强度
+ 295   2                      else choose_display('t');                                                       //其他条件下显示时间
+ 296   2              }
+ 297   1              if(menu==1)choose_display('t');                                                 //只显示时间
+ 298   1              if(menu==2)choose_display('T');                                                 //只显示温度
+ 299   1              if(menu==3)choose_display('l');                                                 //只显示光强
+ 300   1              //调整时
+ 301   1              if(menu==4)
+ 302   1              {
+C51 COMPILER V9.59.0.0   MAIN                                                              01/01/2023 10:12:08 PAGE 6   
 
- 303   1        if(menu==4)
- 304   1        {
- 305   2          //闪烁
- 306   2          if(point_display==1)
- 307   2          {
- 308   3            table[2]=fen/16;
- 309   3            table[3]=fen%16;
- 310   3          }
- 311   2          else
- 312   2          {
- 313   3            table[2]=10;
- 314   3            table[3]=10;
- 315   3          }
- 316   2          table[0]=shi/16;
- 317   2          table[1]=shi%16;
- 318   2          choose_display('s');
- 319   2        }
- 320   1        //调整分
- 321   1        if(menu==5)
- 322   1        {
- 323   2          table[2]=fen/16;
- 324   2          table[3]=fen%16;
- 325   2          //闪烁
- 326   2          if(point_display>0)
- 327   2          {
- 328   3            table[0]=shi/16;
- 329   3            table[1]=shi%16;
- 330   3          }
- 331   2          else
- 332   2          {
- 333   3            table[0]=10;
- 334   3            table[1]=10;
- 335   3          }
- 336   2          choose_display('s');
- 337   2        }
- 338   1      }
- 339          //收集温度和光强度
- 340          void collect_tem_and_lum()
- 341          {
- 342   1        //允许采样
- 343   1        if(is_not_collect==1)
- 344   1        {
- 345   2          is_not_collect=0;
- 346   2          GetADCResult(2,&lum);   //光敏AD采样
- 347   2          GetADCResult(3,&tem);   //热敏AD采样
- 348   2          tem = (unsigned int) ( ( 3950.0 / ( 11.33657 + log( 6.04 * (float)tem / ( 1024.0 - (float)tem ) ) ) - 27
+ 303   2                      //闪烁
+ 304   2                      if(point_display==1)
+ 305   2                      {
+ 306   3                              table[2]=fen/16;
+ 307   3                              table[3]=fen%16;
+ 308   3                      }
+ 309   2                      else
+ 310   2                      {
+ 311   3                              table[2]=10;
+ 312   3                              table[3]=10;
+ 313   3                      }
+ 314   2                      table[0]=shi/16;
+ 315   2                      table[1]=shi%16;
+ 316   2                      choose_display('s');
+ 317   2              }
+ 318   1              //调整分
+ 319   1              if(menu==5)
+ 320   1              {
+ 321   2                      table[2]=fen/16;
+ 322   2                      table[3]=fen%16;
+ 323   2                      //闪烁
+ 324   2                      if(point_display>0)
+ 325   2                      {
+ 326   3                              table[0]=shi/16;
+ 327   3                              table[1]=shi%16;
+ 328   3                      }
+ 329   2                      else
+ 330   2                      {
+ 331   3                              table[0]=10;
+ 332   3                              table[1]=10;
+ 333   3                      }
+ 334   2                      choose_display('s');
+ 335   2              }
+ 336   1      }
+ 337          
+ 338          //收集温度和光强度
+ 339          void collect_tem_and_lum()
+ 340          {
+ 341   1              //允许采样
+ 342   1              if(is_not_collect==1)
+ 343   1              {
+ 344   2                      is_not_collect=0;
+ 345   2                      GetADCResult(2,&lum);           //光敏AD采样
+ 346   2                      GetADCResult(3,&tem);           //热敏AD采样
+ 347   2                      tem = (unsigned int) ( ( 3950.0 / ( 11.33657 + log( 6.04 * (float)tem / ( 1024.0 - (float)tem ) ) ) - 27
              -8.15) * 100 );
- 349   2        }
- 350   1        //光控制显示亮度
- 351   1        ld=(lum/50)*5;
- 352   1      }
- 353          
- 354          void choose_display(uchar choose)
- 355          {
- 356   1        if(choose == 't')
- 357   1        {
- 358   2          read_time();
- 359   2          table[0]=shi/16;
- 360   2          table[1]=shi%16;
- 361   2          table[2]=fen/16;
- 362   2          table[3]=fen%16;
- 363   2          display(1,1);
-C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 7   
+ 348   2              }
+ 349   1              //光控制显示亮度
+ 350   1              ld=(lum/50)*5;
+ 351   1      }
+ 352          
+ 353          void choose_display(uchar choose)
+ 354          {
+ 355   1              if(choose == 't')
+ 356   1              {
+ 357   2                      read_time();
+ 358   2                      table[0]=shi/16;
+ 359   2                      table[1]=shi%16;
+ 360   2                      table[2]=fen/16;
+ 361   2                      table[3]=fen%16;
+ 362   2                      display(1,1);
+ 363   2                      Delayms(ld);
+C51 COMPILER V9.59.0.0   MAIN                                                              01/01/2023 10:12:08 PAGE 7   
 
- 364   2          Delayms(ld);
- 365   2        }
- 366   1        else if(choose == 'T')
- 367   1        {
- 368   2          if(tem>=10)
- 369   2          {
- 370   3            table[0]=tem/1000;
- 371   3            table[1]=tem%1000/100;
- 372   3            table[2]=tem%1000%100/10;
- 373   3            table[3]=11;
- 374   3          }
- 375   2          else if(tem<10)
- 376   2          {
- 377   3            table[0]=tem%1000/100;
- 378   3            table[1]=tem%1000%100/10;
- 379   3            table[2]=tem%1000%100%10;
- 380   3            table[3]=11;
- 381   3          }
- 382   2          display(1,0);
- 383   2          Delayms(ld);
- 384   2        }
- 385   1        else if(choose == 'l')
- 386   1        {
- 387   2          table[0]=lum/1000;
- 388   2          table[1]=lum%1000/100;
- 389   2          table[2]=lum%1000%100/10;
- 390   2          table[3]=lum%1000%100%10;
- 391   2          display(3,0);
- 392   2          Delayms(ld);
- 393   2        }
- 394   1        //菜单四和五设置时间的显示
- 395   1        else if(choose == 's')
- 396   1        {
- 397   2          display(1,1);
- 398   2          Delayms(ld);
- 399   2        }
- 400   1      }
- 401          
- 402          void key()
- 403          {
- 404   1        if(sw1==0)
- 405   1        {
- 406   2          menu++;
- 407   2          if(menu==6){menu=0;write_time();}
- 408   2          while(sw1==0);//确保松手之前不变
- 409   2        }
- 410   1        //在时间显示页面，按下sw2就可以初始化时间
- 411   1        if(menu==0 || menu==1)
- 412   1        {
- 413   2          if(sw2==0)
- 414   2          {
- 415   3            write_ds1302(0x8e,0x00);  //关闭写保护
- 416   3            for(i=0;i<3;i++)write_ds1302(write_add[i],init_ds[i]);  //把最高位值0 允许ds1302工作
- 417   3            write_ds1302(0x8e,0x80);  //打开写保护
- 418   3            while(sw2==0);
- 419   3          }
- 420   2        }
- 421   1        if(menu==4)
- 422   1        {
- 423   2          if(sw2==0)
- 424   2          {
- 425   3            if(fen >= 0x59)fen=0;
-C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 8   
+ 364   2              }
+ 365   1              else if(choose == 'T')
+ 366   1              {
+ 367   2                      if(tem>=10)
+ 368   2                      {
+ 369   3                              table[0]=tem/1000;
+ 370   3                              table[1]=tem%1000/100;
+ 371   3                              table[2]=tem%1000%100/10;
+ 372   3                              table[3]=11;
+ 373   3                      }
+ 374   2                      else if(tem<10)
+ 375   2                      {
+ 376   3                              table[0]=tem%1000/100;
+ 377   3                              table[1]=tem%1000%100/10;
+ 378   3                              table[2]=tem%1000%100%10;
+ 379   3                              table[3]=11;
+ 380   3                      }
+ 381   2                      display(1,0);
+ 382   2                      Delayms(ld);
+ 383   2              }
+ 384   1              else if(choose == 'l')
+ 385   1              {
+ 386   2                      table[0]=lum/1000;
+ 387   2                      table[1]=lum%1000/100;
+ 388   2                      table[2]=lum%1000%100/10;
+ 389   2                      table[3]=lum%1000%100%10;
+ 390   2                      display(3,0);
+ 391   2                      Delayms(ld);
+ 392   2              }
+ 393   1              //菜单四和五设置时间的显示
+ 394   1              else if(choose == 's')
+ 395   1              {
+ 396   2                      display(1,1);
+ 397   2                      Delayms(ld);
+ 398   2              }
+ 399   1      }
+ 400          
+ 401          void key()
+ 402          {
+ 403   1              if(sw1==0)
+ 404   1              {
+ 405   2                      menu++;
+ 406   2                      if(menu==6){menu=0;write_time();}
+ 407   2                      while(sw1==0);//确保松手之前不变
+ 408   2              }
+ 409   1              //在时间显示页面，按下sw2就可以初始化时间
+ 410   1              if(menu==0 || menu==1)
+ 411   1              {
+ 412   2                      if(sw2==0)
+ 413   2                      {
+ 414   3                              write_ds1302(0x8e,0x00);        //关闭写保护
+ 415   3                              for(i=0;i<3;i++)write_ds1302(write_add[i],init_ds[i]);  //把最高位值0 允许ds1302工作
+ 416   3                              write_ds1302(0x8e,0x80);        //打开写保护
+ 417   3                              while(sw2==0);
+ 418   3                      }
+ 419   2              }
+ 420   1              if(menu==4)
+ 421   1              {
+ 422   2                      if(sw2==0)
+ 423   2                      {
+ 424   3                              if(fen >= 0x59)fen=0;
+ 425   3                              else fen=fen+0x01;
+C51 COMPILER V9.59.0.0   MAIN                                                              01/01/2023 10:12:08 PAGE 8   
 
- 426   3            else fen=fen+0x01;
- 427   3            if((fen & 0x0f) >= 0x0a)fen = (fen & 0xf0) + 0x10;
- 428   3            while(sw2==0);
- 429   3            miao=0;//秒钟归零
- 430   3          }
- 431   2        }
- 432   1        if(menu==5)
- 433   1        {
- 434   2          if(sw2==0)
- 435   2          {
- 436   3            shi+=0x01;
- 437   3            if((shi & 0x0f) >= 0x0a)shi = (shi & 0xf0) + 0x10;
- 438   3            if(shi >= 0x24)shi = 0;
- 439   3            while(sw2==0);
- 440   3            miao=0;//秒钟归零
- 441   3          }
- 442   2        }
- 443   1        write_setting();   //断电保存
- 444   1      }
- 445          
- 446          void init()
- 447          {
- 448   1        uchar i;
- 449   1      
- 450   1        P2M0=0xFF;
- 451   1        P2M1=0x00;
- 452   1        P3M0 = 0xF0;
- 453   1        P3M1 = 0x00;
- 454   1        
- 455   1        //init
- 456   1        TMOD= 0x01;
- 457   1        TL0 = (65536-50000)/256;        //设置定时初值
- 458   1        TH0 = (65536-50000)%256;        //设置定时初值
- 459   1        ET0 = 1;
- 460   1        TR0 = 1;
- 461   1        EA = 1;
- 462   1        
- 463   1        //InitADC
- 464   1        P1ASF = 0x7f;                 //Open channels ADC function 0100 0000 p1.6使用AD功能
- 465   1        ADC_RES  = 0;                       //Clear previous result
- 466   1        ADC_LOW2 = 0;
- 467   1        ADC_CONTR = ADC_POWER | ADC_SPEEDLL;
- 468   1        
- 469   1        //init_ds1302_io
- 470   1        rst = 0;  //第一次读写数据时要把IO品拿低
- 471   1        clk = 0;
- 472   1        io = 0;
- 473   1        
- 474   1        //init_ds1302
- 475   1        //初始化ds1302时间
- 476   1        rst = 0;  //第一次读写数据时要把IO品拿低
- 477   1        clk = 0;
- 478   1        io = 0;
- 479   1        i = read_ds1302ram(30);   
- 480   1        if(i != 3)
- 481   1        {
- 482   2          i = 3;
- 483   2          write_ds1302ram(30,i);
- 484   2          write_ds1302(0x8e,0x00);  //关闭写保护
- 485   2          for(i=0;i<3;i++)
- 486   2            write_ds1302(write_add[i],init_ds[i]);  //把最高位值0 允许ds1302工作
- 487   2          write_ds1302(0x8e,0x80);  //打开写保护
-C51 COMPILER V9.59.0.0   MAIN                                                              12/29/2022 14:58:08 PAGE 9   
+ 426   3                              if((fen & 0x0f) >= 0x0a)fen = (fen & 0xf0) + 0x10;
+ 427   3                              while(sw2==0);
+ 428   3                              miao=0;//秒钟归零
+ 429   3                      }
+ 430   2              }
+ 431   1              if(menu==5)
+ 432   1              {
+ 433   2                      if(sw2==0)
+ 434   2                      {
+ 435   3                              shi+=0x01;
+ 436   3                              if((shi & 0x0f) >= 0x0a)shi = (shi & 0xf0) + 0x10;
+ 437   3                              if(shi >= 0x24)shi = 0;
+ 438   3                              while(sw2==0);
+ 439   3                              miao=0;//秒钟归零
+ 440   3                      }
+ 441   2              }
+ 442   1              write_setting();         //断电保存
+ 443   1      }
+ 444          
+ 445          void init()
+ 446          {
+ 447   1              uchar i;
+ 448   1      
+ 449   1              P2M0=0xFF;
+ 450   1              P2M1=0x00;
+ 451   1              P3M0 = 0xF0;
+ 452   1              P3M1 = 0x00;
+ 453   1              
+ 454   1              //init
+ 455   1              TMOD= 0x01;
+ 456   1              TL0 = (65536-50000)/256;        //设置定时初值
+ 457   1              TH0 = (65536-50000)%256;        //设置定时初值
+ 458   1              ET0 = 1;
+ 459   1              TR0 = 1;
+ 460   1              EA = 1;
+ 461   1              
+ 462   1              //InitADC
+ 463   1              P1ASF = 0x7f;                   //Open channels ADC function 0100 0000 p1.6使用AD功能
+ 464   1              ADC_RES  = 0;                                   //Clear previous result
+ 465   1              ADC_LOW2 = 0;
+ 466   1              ADC_CONTR = ADC_POWER | ADC_SPEEDLL;
+ 467   1              
+ 468   1              //init_ds1302_io
+ 469   1              rst = 0;        //第一次读写数据时要把IO品拿低
+ 470   1              clk = 0;
+ 471   1              io = 0;
+ 472   1              
+ 473   1              //init_ds1302
+ 474   1              //初始化ds1302时间
+ 475   1              rst = 0;        //第一次读写数据时要把IO品拿低
+ 476   1              clk = 0;
+ 477   1              io = 0;
+ 478   1              i = read_ds1302ram(30);   
+ 479   1              if(i != 3)
+ 480   1              {
+ 481   2                      i = 3;
+ 482   2                      write_ds1302ram(30,i);
+ 483   2                      write_ds1302(0x8e,0x00);        //关闭写保护
+ 484   2                      for(i=0;i<3;i++)
+ 485   2                              write_ds1302(write_add[i],init_ds[i]);  //把最高位值0 允许ds1302工作
+ 486   2                      write_ds1302(0x8e,0x80);        //打开写保护
+ 487   2              }
+C51 COMPILER V9.59.0.0   MAIN                                                              01/01/2023 10:12:08 PAGE 9   
 
- 488   2        }
- 489   1      }
- 490          
- 491          void main()
- 492          {
- 493   1        init();
- 494   1        read_setting();
- 495   1        
- 496   1        while(1)
- 497   1        {
- 498   2          key();
- 499   2          collect_tem_and_lum();
- 500   2          menu();
- 501   2        }
- 502   1      }
- 503          
- 504          void InitTimer1() interrupt 1  // 1毫秒@11.0592MHz
- 505          {
- 506   1        TL0 = (65536-50000)/256;        //设置定时初值
- 507   1        TH0 = (65536-50000)%256;        //设置定时初值
- 508   1        
- 509   1        two_point_flag++;
- 510   1        cycle_display_flag++;
- 511   1        AD_collect_flag++;
- 512   1        
- 513   1        //定时采样光敏和热敏AD采样flag
- 514   1        if(AD_collect_flag>20)
- 515   1        {
- 516   2          AD_collect_flag=0;
- 517   2          is_not_collect=1;
- 518   2        }
- 519   1        
- 520   1        //时钟中间两点闪烁及选择闪烁flag
- 521   1        if(two_point_flag==30)
- 522   1        {
- 523   2          two_point_flag=0;
- 524   2          point_display=!point_display;//时钟中间两点闪烁及选择闪烁标志位
- 525   2        }
- 526   1        
- 527   1        //菜单一循环显示flag
- 528   1        if(cycle_display_flag>0 && cycle_display_flag<300)
- 529   1        {
- 530   2          is_not_display_tem=0;
- 531   2          is_not_display_lum=0;
- 532   2        }
- 533   1        if(cycle_display_flag>300 && cycle_display_flag<500)
- 534   1        {
- 535   2          is_not_display_tem=1;
- 536   2          is_not_display_lum=0;
- 537   2        }
- 538   1        if(cycle_display_flag>500 && cycle_display_flag<700)
- 539   1        {
- 540   2          is_not_display_tem=0;
- 541   2          is_not_display_lum=1;
- 542   2        }
- 543   1        if(cycle_display_flag>700)
- 544   1        {
- 545   2          cycle_display_flag=0;//重新开始
- 546   2        }
- 547   1      }
+ 488   1      }
+ 489          
+ 490          void main()
+ 491          {
+ 492   1              init();
+ 493   1              read_setting();
+ 494   1              
+ 495   1              while(1)
+ 496   1              {
+ 497   2                      key();
+ 498   2                      collect_tem_and_lum();
+ 499   2                      menu();
+ 500   2              }
+ 501   1      }
+ 502          
+ 503          void InitTimer1() interrupt 1  // 1毫秒@11.0592MHz
+ 504          {
+ 505   1              TL0 = (65536-50000)/256;        //设置定时初值
+ 506   1              TH0 = (65536-50000)%256;        //设置定时初值
+ 507   1              
+ 508   1              two_point_flag++;
+ 509   1              cycle_display_flag++;
+ 510   1              AD_collect_flag++;
+ 511   1              
+ 512   1              //定时采样光敏和热敏AD采样flag
+ 513   1              if(AD_collect_flag>20)
+ 514   1              {
+ 515   2                      AD_collect_flag=0;
+ 516   2                      is_not_collect=1;
+ 517   2              }
+ 518   1              
+ 519   1              //时钟中间两点闪烁及选择闪烁flag
+ 520   1              if(two_point_flag==30)
+ 521   1              {
+ 522   2                      two_point_flag=0;
+ 523   2                      point_display=!point_display;//时钟中间两点闪烁及选择闪烁标志位
+ 524   2              }
+ 525   1              
+ 526   1              //菜单一循环显示flag
+ 527   1              if(cycle_display_flag>0 && cycle_display_flag<300)
+ 528   1              {
+ 529   2                      is_not_display_tem=0;
+ 530   2                      is_not_display_lum=0;
+ 531   2              }
+ 532   1              if(cycle_display_flag>300 && cycle_display_flag<500)
+ 533   1              {
+ 534   2                      is_not_display_tem=1;
+ 535   2                      is_not_display_lum=0;
+ 536   2              }
+ 537   1              if(cycle_display_flag>500 && cycle_display_flag<700)
+ 538   1              {
+ 539   2                      is_not_display_tem=0;
+ 540   2                      is_not_display_lum=1;
+ 541   2              }
+ 542   1              if(cycle_display_flag>700)
+ 543   1              {
+ 544   2                      cycle_display_flag=0;//重新开始
+ 545   2              }
+ 546   1      }
 
 C51 COMPILATION COMPLETE.  0 WARNING(S),  1 ERROR(S)
