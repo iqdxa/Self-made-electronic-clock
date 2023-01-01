@@ -302,6 +302,7 @@ void choose_display(uchar choose[])
 	}
 	else if(choose == "tem")
 	{
+		collect_tem_and_lum();//进行采样
 		if(tem>=10)
 		{
 			table[0]=tem/1000;
@@ -321,6 +322,7 @@ void choose_display(uchar choose[])
 	}
 	else if(choose == "lum")
 	{
+		collect_tem_and_lum();//进行采样
 		table[0]=lum%1000/100;
 		table[1]=lum%1000%100/10;
 		table[2]=lum%1000%100%10;
@@ -352,7 +354,7 @@ void display_menu()
 		else choose_display("t_shi_fen"); 						//其他条件下显示时和分
 	}
 	if(menu==1)choose_display("t_fen_miao");					//显示分和秒
-	if(menu==2)choose_display("tem");							//只显示温度
+	if(menu==2)choose_display("tem_lum");						//只显示温度
 	if(menu==3)choose_display("lum");							//只显示光强
 	//调整时
 	if(menu==4)
@@ -504,7 +506,6 @@ void main()
 	while(1)
 	{
 		key();
-		collect_tem_and_lum();
 		display_menu();
 	}
 }
