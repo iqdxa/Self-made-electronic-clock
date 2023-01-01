@@ -288,7 +288,7 @@ void choose_display(uchar choose[])
 		table[2]=fen/16;
 		table[3]=fen%16;
 		display(1,1);
-		Delayms(ld);
+		
 	}
 	else if(choose == "t_fen_miao")
 	{
@@ -298,7 +298,7 @@ void choose_display(uchar choose[])
 		table[2]=miao/16;
 		table[3]=miao%16;
 		display(1,1);
-		Delayms(ld);
+		
 	}
 	else if(choose == "tem")
 	{
@@ -318,7 +318,7 @@ void choose_display(uchar choose[])
 			table[3]=11;
 		}
 		display(1,0);
-		Delayms(ld);
+		
 	}
 	else if(choose == "lum")
 	{
@@ -328,13 +328,12 @@ void choose_display(uchar choose[])
 		table[2]=lum%1000%100%10;
 		table[3]=12;	//第12位显示L
 		display(-1,0);	//-1即不在任何位置显示小数点
-		Delayms(ld);
+		
 	}
 	//菜单四和五设置时间的显示
 	else if(choose == "setting")
 	{
 		display(1,1);
-		Delayms(ld);
 	}
 }
 
