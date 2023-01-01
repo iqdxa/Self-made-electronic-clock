@@ -32,7 +32,7 @@ sbit sw2=P3^1;
 uchar code init_ds[]  ={0x00,0x00,0x00,0x01,0x01,0x00,0x13};	//初始化
 uchar code write_add[]={0x80,0x82,0x84,0x86,0x88,0x8c,0x8a};	//写地址
 uchar code read_add[] ={0x81,0x83,0x85,0x87,0x89,0x8d,0x8b};	//读地址 
-uchar dat1[]={0xC0,0xF9,0xA4,0xB0,0x99,0x92,0x82,0xf8,0X80,0X90,0xff,0xc6};//正立无小数点
+uchar dat1[]={0xC0,0xF9,0xA4,0xB0,0x99,0x92,0x82,0xf8,0X80,0X90,0xff,0xc6,0xc7};//正立无小数点
 uchar dat2[]={0x40,0x79,0x24,0x30,0x19,0x12,0x02,0x78,0X00,0X10,0xff};//正立有小数点
 uchar dat3[]={0x40,0x4F,0x24,0x06,0x0B,0x12,0x10,0x47,0X00,0X02,0xff};//倒立有小数点
 uchar dat4[]={0xC0,0xCF,0xA4,0x86,0x8B,0x92,0x90,0xC7,0X80,0X82,0xff};//倒立无小数点
@@ -98,11 +98,13 @@ void display(uint position,uint format)
 	DS4=0;
 	if(format==1)
 	{
+		//是显示时间
 		if(point_display==1)P2=dat2[table[1]];
 		else if(point_display==0)P2=dat1[table[1]];
 	}
 	else if(format==0)
 	{
+		//不是显示时间
 		if(position==1)P2=dat2[table[1]];
 		else P2=dat1[table[1]];
 	}
@@ -318,11 +320,11 @@ void choose_display(uchar choose[])
 	}
 	else if(choose == "lum")
 	{
-		table[0]=lum/1000;
-		table[1]=lum%1000/100;
-		table[2]=lum%1000%100/10;
-		table[3]=lum%1000%100%10;
-		display(3,0);
+		table[0]=lum%1000/100;
+		table[1]=lum%1000%100/10;
+		table[2]=lum%1000%100%10;
+		table[3]=12;	//第12位显示L
+		display(-1,0);	//-1即不在任何位置显示小数点
 		Delayms(ld);
 	}
 	//菜单四和五设置时间的显示
@@ -345,9 +347,9 @@ void display_menu()
 	{
 		if(display_tem==1)choose_display("tem");				//一定条件下显示温度
 		else if(display_lum==1)choose_display("lum");			//一定条件下显示发光强度
-		else choose_display("t_shi_fen"); 							//其他条件下显示时和分
+		else choose_display("t_shi_fen"); 						//其他条件下显示时和分
 	}
-	if(menu==1)choose_display("t_fen_miao");							//只显示分和秒
+	if(menu==1)choose_display("t_fen_miao");					//只显示分和秒
 	if(menu==2)choose_display("tem");							//只显示温度
 	if(menu==3)choose_display("lum");							//只显示光强
 	//调整时
