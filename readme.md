@@ -1,4 +1,5 @@
 # 自制电子时钟
+[个人主页](https://iqdxa.github.io)|[GitHub主页](https://github.com/iqdxa/Self-made-electronic-clock)|[gitee主页](https://gitee.com/tfc123/Self-made-electronic-clock)
 ## 想法来源
 ​有一门课叫电装实习，因为疫情，也没有办法正常上课，上的也不过瘾，于是就产生了自己动手的想法。就在淘宝上买了一些专门用来教学的套件，自己也可以顺便学一学相关的知识。分析了源代码，逻辑分析清楚后，就自己修改了。  
 ## 资料
