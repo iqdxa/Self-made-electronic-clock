@@ -221,8 +221,6 @@ void write_time()
 	write_ds1302(write_add[5],nian);	//写年
 	write_ds1302(write_add[6],week);	//写星期
 	write_ds1302(0x8e,0x80);			//打开写保护
-}
-
 void write_setting()
 {
 	write_ds1302(0x8e,0x00);
@@ -235,8 +233,8 @@ void write_setting()
 
 void read_setting()
 {
-	nk = read_ds1302(0xc7);					//1100 0111 读取Ram3
-	gk = read_ds1302(0xc9);					//1100 1001 读取Ram4
+	nk = read_ds1302(0xc7);		//1100 0111 读取Ram3
+	gk = read_ds1302(0xc9);		//1100 1001 读取Ram4
 	nx = read_ds1302(0xcb);
 	sw = read_ds1302(0xcd);
 }
@@ -288,7 +286,6 @@ void choose_display(uchar choose[])
 		table[2]=fen/16;
 		table[3]=fen%16;
 		display(1,1);
-		
 	}
 	else if(choose == "t_fen_miao")
 	{
@@ -298,7 +295,6 @@ void choose_display(uchar choose[])
 		table[2]=miao/16;
 		table[3]=miao%16;
 		display(1,1);
-		
 	}
 	else if(choose == "tem")
 	{
@@ -318,7 +314,6 @@ void choose_display(uchar choose[])
 			table[3]=11;
 		}
 		display(1,0);
-		
 	}
 	else if(choose == "lum")
 	{
@@ -328,7 +323,6 @@ void choose_display(uchar choose[])
 		table[2]=lum%1000%100%10;
 		table[3]=12;	//第12位显示L
 		display(-1,0);	//-1即不在任何位置显示小数点
-		
 	}
 	//菜单四和五设置时间的显示
 	else if(choose == "setting")
@@ -340,11 +334,12 @@ void choose_display(uchar choose[])
 void display_menu()
 {
 	//菜单一循环显示
-	//菜单二只显示时间
+	//菜单二只显示时和分
 	//菜单三只显示温度
 	//菜单四只显示光强度
 	//菜单五调整时
 	//菜单六调整分
+	//菜单七关闭能关闭的以减少电量使用
 	if(menu==0)
 	{
 		if(display_min_sec==1)choose_display("t_fen_miao");			//显示分和秒
@@ -390,6 +385,11 @@ void display_menu()
 			table[1]=10;
 		}
 		choose_display("setting");
+	}
+	//什么都不做
+	if(menu==6)
+	{
+		
 	}
 }
 
